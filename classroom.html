@@ -40,7 +40,7 @@ a{color:var(--ac)}
 const K='classroom_v1',$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
-const DEFAULT_API='';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
+const DEFAULT_API='https://script.google.com/macros/s/AKfycbwwmR4OduwrA4KTP3oWCUG3K10mbqTaYaquH6fBt8JqBOd9r7G3iLfCTBeoNMtD_luwwA/exec';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
 let S,me=null,v={c:null,a:null,t:'work'},API='',role='t',TOK='',lm='in';
 try{API=localStorage.getItem('cr_api')||DEFAULT_API;me=JSON.parse(localStorage.getItem('cr_me')||sessionStorage.getItem('cr_me')||'null');TOK=localStorage.getItem('cr_tok')||sessionStorage.getItem('cr_tok')||'';const th=localStorage.getItem('cr_th');if(th)document.documentElement.dataset.theme=th}catch(e){}
 if(API&&!TOK)me=null;
