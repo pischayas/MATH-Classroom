@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ห้องเรียนออนไลน์</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6fb;--sf:#fff;--s2:#eef2f9;--tx:#1f2430;--mu:#667085;--bd:#dde3ee;--ac:#2563eb;--ok:#16794a;--okb:#e3f5ea;--wa:#a15c00;--wab:#fff3d6;--er:#c0362c;--erb:#fde7e5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--sf:#182030;--s2:#202a3d;--tx:#e8ecf4;--mu:#9aa6bd;--bd:#2c3850;--ac:#6ea0ff;--ok:#5fd394;--okb:#143525;--wa:#f0b955;--wab:#3a2c10;--er:#ff8a80;--erb:#3d1a18}}
+:root[data-theme="dark"]{--bg:#10151f;--sf:#182030;--s2:#202a3d;--tx:#e8ecf4;--mu:#9aa6bd;--bd:#2c3850;--ac:#6ea0ff;--ok:#5fd394;--okb:#143525;--wa:#f0b955;--wab:#3a2c10;--er:#ff8a80;--erb:#3d1a18}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 Sarabun,system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--ac);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--ac);color:#fff;display:flex;align-items:center;gap:8px;padding:10px 14px}
+header b{flex:1;font-size:1.05rem}header button{background:#ffffff26;color:#fff;border:0;border-radius:18px;padding:4px 11px;font:inherit;font-size:.82rem;cursor:pointer}
+main{max-width:1000px;margin:0 auto;padding:14px;display:grid;grid-template-columns:260px 1fr;gap:14px}
+@media(max-width:760px){main{grid-template-columns:1fr}}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px}
+h3{margin:0 0 10px;font-size:1rem}.mu{color:var(--mu);font-size:.85rem}
+input,textarea,select{width:100%;font:inherit;background:var(--s2);color:var(--tx);border:1.5px solid var(--bd);border-radius:8px;padding:8px 10px;margin:4px 0}
+textarea{min-height:80px;resize:vertical}
+.btn{font:inherit;font-weight:600;background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.o{background:none;color:var(--ac);border:1.5px solid var(--ac)}.btn.s{padding:4px 10px;font-size:.85rem}
+.ci{display:block;width:100%;text-align:left;background:var(--s2);border:1.5px solid transparent;border-radius:10px;padding:9px 11px;margin-bottom:6px;font:inherit;color:var(--tx);cursor:pointer}
+.ci.on{border-color:var(--ac)}.ci small{display:block;color:var(--mu)}
+.chip{display:inline-block;font-size:.75rem;font-weight:700;border-radius:12px;padding:2px 9px}
+.c-no{background:var(--erb);color:var(--er)}.c-wait{background:var(--wab);color:var(--wa)}.c-ok{background:var(--okb);color:var(--ok)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{flex:1}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.ai{border:1px solid var(--bd);border-radius:10px;padding:11px;margin-bottom:8px;background:var(--sf)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}td input{margin:0;min-width:70px}
+.st{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.st div{background:var(--s2);border-radius:8px;padding:8px;text-align:center}.st b{display:block;font-size:1.3rem}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#222;color:#fff;padding:8px 16px;border-radius:20px;font-size:.85rem;opacity:0;transition:.25s;pointer-events:none;z-index:20}#toast.on{opacity:1}
+.login{max-width:380px;margin:40px auto}.seg{display:flex;gap:6px;margin-bottom:8px}.seg button{flex:1}
+a{color:var(--ac)}
+</style></head><body>
+<header><b>🏫 ห้องเรียนออนไลน์</b><span id="who" class="mu" style="color:#fff"></span><button data-a="theme">🌓</button><button data-a="api">⚙️</button><button data-a="cp" id="cpb" hidden>🔑 รหัสผ่าน</button><button data-a="out" id="outb" hidden>ออก</button></header>
+<main id="app"></main><div id="toast"></div>
+<script>
+const K='classroom_v1',$=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const DEFAULT_API='';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
+let S,me=null,v={c:null,a:null,t:'work'},API='',role='t',TOK='',lm='in';
+try{API=localStorage.getItem('cr_api')||DEFAULT_API;me=JSON.parse(localStorage.getItem('cr_me')||sessionStorage.getItem('cr_me')||'null');TOK=localStorage.getItem('cr_tok')||sessionStorage.getItem('cr_tok')||'';const th=localStorage.getItem('cr_th');if(th)document.documentElement.dataset.theme=th}catch(e){}
+if(API&&!TOK)me=null;
+function seed(){const n=['กฤษณะ เป้าเงิน','กิติภูมิ ถาชินเลิศ','ณัฐกิตติ์ อินเขียว','ธนภัทร พรมวงศ์'];
+ return{classes:[{id:'c1',name:'คณิตศาสตร์ ม.3',code:'MATH3A',teacher:'ครูพิชญา'},{id:'c2',name:'วิทยาศาสตร์ ม.3',code:'SCI3B',teacher:'ครูพิชญา'}],
+ members:n.map((x,i)=>({id:'m'+i,cls:'c1',name:x})).concat(n.slice(0,2).map((x,i)=>({id:'k'+i,cls:'c2',name:x}))),
+ asgs:[{id:'a1',cls:'c1',title:'แบบฝึกหัด สมการเชิงเส้น',desc:'ทำข้อ 1-10 หน้า 45 แล้วพิมพ์คำตอบหรือแนบลิงก์รูปงาน',due:'2026-11-10',max:10},{id:'a2',cls:'c1',title:'โจทย์ปัญหา ร้อยละ',desc:'แสดงวิธีทำ 5 ข้อ',due:'2026-11-20',max:20},{id:'a3',cls:'c2',title:'รายงานการทดลอง',desc:'สรุปผลการทดลองสั้นๆ',due:'2026-11-15',max:20}],
+ subs:[{id:'s1',asg:'a1',name:n[0],text:'ข้อ 1 x=3 ข้อ 2 x=5 …',at:'2026-11-02T09:10',score:9,fb:'ดีมาก ข้อ 7 ตรวจสอบอีกครั้ง'},{id:'s2',asg:'a1',name:n[1],text:'https://example.com/my-work.jpg',at:'2026-11-03T08:00',score:null,fb:''}]}}
+function load(){if(API){S={classes:[],members:[],asgs:[],subs:[]};return}try{S=JSON.parse(localStorage.getItem(K))}catch(e){}if(!S||!S.classes)S=seed()}
+function save(){if(API)return;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('เก็บในเครื่องไม่ได้ (พื้นที่เต็มหรือถูกบล็อก)')}}
+function put(t,row,del){const L=S[t],i=L.findIndex(x=>x.id===row.id);if(del){if(i>=0)L.splice(i,1)}else if(i>=0)L[i]=row;else L.push(row);save();
+ if(API)fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,table:t,row,op:del?'del':'up'})}).then(r=>r.json()).then(r=>{if(!r.ok){toast(r.error=='auth'?'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่':(r.error||'บันทึกไม่สำเร็จ'));pull().then(render)}}).catch(()=>toast('ซิงก์ชีตไม่สำเร็จ'))}
+async function pull(){if(!API||!TOK)return;try{const r=await(await fetch(API+'?token='+encodeURIComponent(TOK))).json();if(r.error==='auth'){logout();toast('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');return}S=r}catch(e){toast('โหลดข้อมูลจากชีตไม่ได้')}}
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2400)}
+const has=s=>s&&s.score!==null&&s.score!==''&&s.score!==undefined;
+const sub=(a,n)=>S.subs.find(s=>s.asg===a&&s.name===n);
+const stat=s=>!s?['ยังไม่ส่ง','c-no']:has(s)?['ตรวจแล้ว','c-ok']:['รอตรวจ','c-wait'];
+const chip=s=>{const[t,c]=stat(s);return`<span class="chip ${c}">${t}</span>`};
+const fd=d=>d?new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'-';
+const link=t=>esc(t).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+const myC=()=>me.role==='t'?S.classes.filter(c=>c.teacher===me.name):S.classes.filter(c=>S.members.some(m=>m.cls===c.id&&m.name===me.name));
+const att=s=>s&&s.furl?`<div><a href="${esc(s.furl)}" download="${esc(s.fname)}" target="_blank" rel="noopener">📎 ${esc(s.fname||'ไฟล์แนบ')}</a></div>`:'';
+const apiP=()=>v.api?`<div class="card" style="grid-column:1/-1"><h3>เชื่อม Google Sheets</h3><input id="apiu" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(API)}"><button class="btn s" data-a="saveapi">บันทึก</button> <span class="mu">เว้นว่าง = ใช้ข้อมูลในเครื่อง</span></div>`:'';
+function sumData(c){const as=S.asgs.filter(a=>a.cls==c.id),ms=S.members.filter(m=>m.cls==c.id),tm=as.reduce((p,a)=>p+ +a.max,0);
+ const rows=ms.map(m=>{const sc=as.map(a=>{const s=sub(a.id,m.name);return has(s)?+s.score:null});const tot=sc.reduce((p,x)=>p+(x||0),0);return{n:m.name,sc,tot,pct:tm?tot/tm*100:0}});
+ const avg=as.map((a,i)=>{const g=rows.filter(r=>r.sc[i]!==null);return g.length?g.reduce((p,r)=>p+r.sc[i],0)/g.length:null});
+ return{as,rows,tm,avg}}
+function sumView(c){const d=sumData(c);if(!d.as.length)return'<p class="mu">ยังไม่มีงานให้สรุป</p>';const f=x=>x===null?'-':+x.toFixed(1);
+ const ta=d.rows.length?d.rows.reduce((p,r)=>p+r.tot,0)/d.rows.length:null;
+ return`<div class="row"><h3>สรุปคะแนนรวม (เต็ม ${d.tm})</h3><button class="btn s o" data-a="csv">⬇ CSV</button></div><div class="tw"><table><tr><th>ชื่อ</th>${d.as.map(a=>`<th>${esc(a.title)}<br><span class="mu">/${a.max}</span></th>`).join('')}<th>รวม</th><th>%</th></tr>${d.rows.map(r=>`<tr><td>${esc(r.n)}</td>${r.sc.map(x=>`<td>${f(x)}</td>`).join('')}<td><b>${r.tot}</b></td><td>${r.pct.toFixed(0)}%</td></tr>`).join('')}<tr><td><b>เฉลี่ยห้อง</b></td>${d.avg.map(x=>`<td><b>${f(x)}</b></td>`).join('')}<td><b>${f(ta)}</b></td><td></td></tr></table></div><p class="mu">“-” คือยังไม่ส่งหรือยังไม่ตรวจ (นับเป็น 0 ในคะแนนรวม)</p>`}
+function csv(c){const d=sumData(c);const L=[['ชื่อ',...d.as.map(a=>a.title+' /'+a.max),'รวม /'+d.tm,'%']].concat(d.rows.map(r=>[r.n,...r.sc.map(x=>x===null?'':x),r.tot,r.pct.toFixed(0)]));
+ const t='\ufeff'+L.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='สรุปคะแนน_'+c.name+'.csv';a.click()}
+async function doSubmit(id){const t=(($('#tx-'+id)||{}).value||'').trim(),f=(($('#fl-'+id)||{}).files||[])[0],o=sub(id,me.name);
+ if(!t&&!f&&!(o&&o.furl))return toast('ใส่ข้อความหรือแนบไฟล์ก่อน');
+ let fname=o?o.fname||'':'',furl=o?o.furl||'':'';
+ if(f){if(f.size>(API?5e6:7e5))return toast('ไฟล์ใหญ่เกิน '+(API?'5 MB':'700 KB (โหมดทดลอง)'));toast('กำลังอัปโหลด…');
+  try{const u=await new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)});furl=u;fname=f.name;
+   if(API){const r=await(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,op:'upload',name:f.name,type:f.type,data:u.split(',')[1]})})).json();if(!r.ok)throw 0;furl=r.url}}
+  catch(e){return toast('อัปโหลดไม่สำเร็จ')}}
+ put('subs',{id:o?o.id:uid(),asg:id,name:me.name,text:t,at:new Date().toISOString(),score:null,fb:'',fname,furl});toast('ส่งงานแล้ว');render()}
+
+async function post(b){return(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,...b})})).json()}
+function dl(L,name){const t='\ufeff'+L.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=name;a.click()}
+function pplView(c,ms){const r=v.res;
+ return`<h3>นักเรียน ${ms.length} คน</h3><div class="ai"><b>เพิ่มรายชื่อนักเรียน</b><div class="mu">บรรทัดละ 1 คน${API?' · ใส่รหัสผ่านเองต่อท้ายด้วยเครื่องหมาย , ได้ ถ้าไม่ใส่ระบบสุ่มเลข 4 หลักให้':''}</div><textarea id="rl" placeholder="กฤษณะ เป้าเงิน&#10;กิติภูมิ ถาชินเลิศ,1234"></textarea><button class="btn s" data-a="addstu">+ เพิ่มนักเรียน</button></div>${r?`<div class="ai"><b>รหัสผ่านสำหรับแจกนักเรียน</b><div class="mu">แสดงครั้งนี้ครั้งเดียว กรุณาบันทึกหรือดาวน์โหลดไว้</div><div class="tw"><table>${r.map(x=>`<tr><td>${esc(x.name)}</td><td><b>${esc(x.pw)}</b></td></tr>`).join('')}</table></div><button class="btn s o" data-a="rescsv">⬇ CSV</button></div>`:''}${ms.map((m,i)=>`<div class="ai row"><span>${i+1}. ${esc(m.name)}</span><span>${API?`<button class="btn s o" data-a="rst" data-n="${esc(m.name)}">รีเซ็ตรหัส</button> `:''}<button class="btn s o" data-a="unen" data-n="${esc(m.name)}">ลบ</button></span></div>`).join('')}`}
+async function addStu(txt){const L=txt.split('\n').map(s=>s.trim()).filter(Boolean).map(s=>{const i=s.lastIndexOf(',');return i>0?{name:s.slice(0,i).trim(),pw:s.slice(i+1).trim()}:{name:s,pw:''}});if(!L.length)return toast('ใส่รายชื่อก่อน');
+ if(!API){L.forEach(x=>{if(!S.members.some(m=>m.cls==v.c&&m.name==x.name))put('members',{id:uid(),cls:v.c,name:x.name})});toast('เพิ่มนักเรียน '+L.length+' คน');render();return}
+ toast('กำลังสร้างบัญชี…');const res=[];
+ try{for(let i=0;i<L.length;i+=15){const r=await post({op:'roster',cls:v.c,list:L.slice(i,i+15)});if(!r.ok)return toast(r.error||'ไม่สำเร็จ');res.push(...r.created)}v.res=res.length?res:null;await pull();toast('เพิ่มแล้ว (สร้างบัญชีใหม่ '+res.length+' คน)');render()}catch(e){toast('เชื่อมต่อไม่ได้')}}
+async function rstPw(n){try{const r=await post({op:'resetpw',name:n});if(!r.ok)return toast(r.error||'ไม่สำเร็จ');v.res=[{name:n,pw:r.pw}];render();toast('รีเซ็ตรหัสแล้ว')}catch(e){toast('เชื่อมต่อไม่ได้')}}
+async function unen(n){if(!API){S.members.filter(m=>m.cls==v.c&&m.name==n).forEach(m=>put('members',m,true));render();return}try{const r=await post({op:'unenroll',cls:v.c,name:n});if(!r.ok)return toast(r.error);await pull();render()}catch(e){toast('เชื่อมต่อไม่ได้')}}
+async function chPw(o,n){try{const r=await post({op:'chpw',old:o,new:n});if(!r.ok)return toast(r.error);v.cp=false;toast('เปลี่ยนรหัสผ่านแล้ว');render()}catch(e){toast('เชื่อมต่อไม่ได้')}}
+const cpP=()=>v.cp?`<div class="card" style="grid-column:1/-1"><h3>เปลี่ยนรหัสผ่าน</h3><input id="po" type="password" autocomplete="current-password" placeholder="รหัสผ่านเดิม"><input id="pn" type="password" autocomplete="new-password" placeholder="รหัสผ่านใหม่ (อย่างน้อย 4 ตัว)"><button class="btn s" data-a="savecp">บันทึก</button></div>`:'';
+function loginApi(){const reg=lm=='up';
+ return`<form class="card login" id="lf" style="grid-column:1/-1"><h3>${reg?'สมัครบัญชีครู':'เข้าสู่ระบบ'}</h3>${reg?'':'<p class="mu">นักเรียน: ใช้ชื่อ-นามสกุลและรหัสผ่านที่ครูแจกให้ ไม่ต้องสมัครเอง</p>'}<div class="seg"><button type="button" class="btn ${reg?'o':''}" data-a="lm" data-m="in">เข้าสู่ระบบ</button><button type="button" class="btn ${reg?'':'o'}" data-a="lm" data-m="up">สมัครบัญชีครู</button></div>${reg?`<div class="seg"><button type="button" class="btn ${role=='s'?'':'o'}" data-a="role" data-r="s">🎒 นักเรียน</button><button type="button" class="btn ${role=='t'?'':'o'}" data-a="role" data-r="t">👩‍🏫 ครู</button></div>`:''}
+ <input id="un" name="username" autocomplete="username" placeholder="ชื่อ-นามสกุล (ตรงกับรายชื่อในห้อง)" required><input id="pw" name="password" type="password" autocomplete="${reg?'new-password':'current-password'}" placeholder="รหัสผ่าน (อย่างน้อย 4 ตัว)" required>${reg&&role=='t'?'<input id="tc" placeholder="รหัสสมัครครู (ขอจากผู้ดูแลระบบ)">':''}
+ <label class="mu"><input type="checkbox" id="rm" checked style="width:auto;margin-right:6px">จดจำฉันไว้ในเครื่องนี้ (ไม่ต้องล็อกอินใหม่ 30 วัน)</label><button class="btn" style="width:100%;margin-top:6px">${reg?'สมัครและเข้าใช้งาน':'เข้าสู่ระบบ'}</button></form>`}
+function login(){if(API)return loginApi();const names=[...new Set(S.members.map(m=>m.name))];
+ return`<div class="card login" style="grid-column:1/-1"><h3>เข้าสู่ระบบ</h3><div class="seg"><button class="btn ${role=='t'?'':'o'}" data-a="role" data-r="t">👩‍🏫 ครู</button><button class="btn ${role=='s'?'':'o'}" data-a="role" data-r="s">🎒 นักเรียน</button></div>
+ <input id="nm" list="nl" placeholder="${role=='t'?'ชื่อครู เช่น ครูพิชญา':'ชื่อนักเรียน'}" value="${role=='t'?'ครูพิชญา':''}"><datalist id="nl">${role=='s'?names.map(n=>`<option value="${esc(n)}">`).join(''):''}</datalist>
+ <button class="btn" style="width:100%;margin-top:6px" data-a="login">เข้าใช้งาน</button><p class="mu">ต้นแบบนี้ยังไม่มีรหัสผ่าน ใช้ชื่อเพื่อแยกมุมมอง</p></div>`}
+
+function side(){const cs=myC();
+ return`<aside class="card"><h3>${me.role=='t'?'ห้องเรียนของฉัน':'วิชาที่เรียน'}</h3>${cs.map(c=>`<button class="ci ${v.c==c.id?'on':''}" data-a="selc" data-id="${c.id}">${esc(c.name)}<small>${me.role=='t'?'รหัสเข้าห้อง '+c.code+' · '+S.members.filter(m=>m.cls==c.id).length+' คน':esc(c.teacher)}</small></button>`).join('')||'<p class="mu">ยังไม่มีห้อง</p>'}
+ ${me.role=='t'?'<input id="cn" placeholder="ชื่อห้อง/วิชา ใหม่"><button class="btn s" data-a="newc">+ สร้างห้อง</button>':'<input id="jc" placeholder="รหัสเข้าห้อง เช่น MATH3A"><button class="btn s" data-a="joinc">เข้าร่วมห้อง</button>'}</aside>`}
+
+function tView(c){const as=S.asgs.filter(a=>a.cls==c.id),ms=S.members.filter(m=>m.cls==c.id);
+ if(v.t=='ppl')return pplView(c,ms);
+ if(v.t=='sum'&&!v.a)return sumView(c);
+ if(v.a){const a=S.asgs.find(x=>x.id==v.a),ss=ms.map(m=>sub(a.id,m.name)),n=ss.filter(Boolean).length,g=ss.filter(has),avg=g.length?(g.reduce((p,s)=>p+ +s.score,0)/g.length).toFixed(1):'-';
+  return`<button class="btn o s" data-a="back">← กลับ</button><h3 style="margin-top:10px">${esc(a.title)}</h3><p class="mu">กำหนดส่ง ${fd(a.due)} · เต็ม ${a.max} คะแนน</p>
+  <div class="st"><div><b>${n}/${ms.length}</b>ส่งแล้ว</div><div><b>${g.length}</b>ตรวจแล้ว</div><div><b>${avg}</b>คะแนนเฉลี่ย</div></div>
+  <div class="tw"><table><tr><th>ชื่อ</th><th>สถานะ</th><th>งานที่ส่ง</th><th>คะแนน</th><th>ความเห็น</th><th></th></tr>${ms.map((m,i)=>{const s=ss[i];return`<tr><td>${esc(m.name)}</td><td>${chip(s)}</td><td>${s?link(s.text)+att(s):'-'}</td>${s?`<td><input type="number" id="sc-${s.id}" min="0" max="${a.max}" value="${has(s)?s.score:''}"></td><td><input id="fb-${s.id}" value="${esc(s.fb)}"></td><td><button class="btn s" data-a="grade" data-id="${s.id}" data-max="${a.max}">บันทึก</button></td>`:'<td>-</td><td>-</td><td></td>'}</tr>`}).join('')}</table></div>`}
+ const e=S.asgs.find(x=>x.id==v.e)||{};return`<form class="ai" onsubmit="return false"><h3>${e.id?'แก้ไขงาน':'สั่งงานใหม่'}</h3><input id="at" placeholder="ชื่องาน" value="${esc(e.title)}"><textarea id="ad" placeholder="รายละเอียด / คำสั่ง">${esc(e.desc)}</textarea><div class="row"><label style="flex:1">กำหนดส่ง<input id="adue" type="date" value="${esc(e.due)}"></label><label style="width:110px">คะแนนเต็ม<input id="am" type="number" value="${e.max||10}"></label></div>${e.id?'<button class="btn" data-a="savea">บันทึกการแก้ไข</button> <button class="btn o" data-a="cancela">ยกเลิก</button>':'<button class="btn" data-a="newa">สั่งงาน</button>'}</form>`+
+ (as.map(a=>{const n=ms.filter(m=>sub(a.id,m.name)).length;return`<div class="ai row"><div><b>${esc(a.title)}</b><div class="mu">ส่ง ${fd(a.due)} · เต็ม ${a.max}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">ส่งแล้ว ${n}/${ms.length} <button class="btn s" data-a="opena" data-id="${a.id}">ตรวจงาน</button><button class="btn s o" data-a="edita" data-id="${a.id}">แก้ไข</button>${v.del==a.id?`<button class="btn s" style="background:var(--er)" data-a="dela" data-id="${a.id}">ยืนยันลบ</button>`:`<button class="btn s o" data-a="dela" data-id="${a.id}">ลบ</button>`}</div></div>`}).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
+
+function sView(c){const as=S.asgs.filter(a=>a.cls==c.id);
+ return`<h3>งานในห้อง ${esc(c.name)}</h3>`+(as.map(a=>{const s=sub(a.id,me.name),late=!s&&a.due&&a.due<new Date().toISOString().slice(0,10);
+ return`<div class="ai"><div class="row"><b>${esc(a.title)}</b>${chip(s)}</div><div class="mu">ส่ง ${fd(a.due)}${late?' · <span style="color:var(--er)">เลยกำหนด</span>':''} · เต็ม ${a.max}</div><p>${link(a.desc)}</p>
+ ${has(s)?`<p><b>คะแนน ${s.score}/${a.max}</b>${s.fb?'<br>ความเห็นครู: '+esc(s.fb):''}</p><p class="mu">งานที่ส่ง: ${link(s.text)}</p>${att(s)}`:`<textarea id="tx-${a.id}" placeholder="พิมพ์คำตอบ หรือวางลิงก์งาน (Drive, รูปภาพ)">${s?esc(s.text):''}</textarea>${s?att(s):''}<input type="file" id="fl-${a.id}"><button class="btn s" data-a="submit" data-id="${a.id}">${s?'ส่งอีกครั้ง':'ส่งงาน'}</button>`}</div>`}).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
+
+function render(){$('#who').textContent=me?(me.role=='t'?'👩‍🏫 ':'🎒 ')+me.name:'';$('#outb').hidden=!me;$('#cpb').hidden=!(me&&API);
+ if(!me){$('#app').innerHTML=apiP()+login();return}
+ const c=S.classes.find(x=>x.id==v.c&&myC().includes(x));let body;
+ if(!c)body='<div class="card"><p class="mu">เลือกห้องเรียนทางซ้าย'+(me.role=='s'?' หรือใส่รหัสห้องที่ครูให้เพื่อเข้าร่วม':'')+'</p></div>';
+ else body=`<section class="card"><div class="row"><h3 style="margin:0">${esc(c.name)}</h3>${me.role=='t'?`<span class="chip c-ok">รหัส ${c.code}</span>`:''}</div>${me.role=='t'&&!v.a?`<div class="tabs" style="margin-top:10px"><button class="btn ${v.t=='work'?'':'o'} s" data-a="tab" data-t="work">งาน</button><button class="btn ${v.t=='ppl'?'':'o'} s" data-a="tab" data-t="ppl">นักเรียน</button><button class="btn ${v.t=='sum'?'':'o'} s" data-a="tab" data-t="sum">สรุปคะแนน</button></div>`:'<hr style="border:0;border-top:1px solid var(--bd)">'}${me.role=='t'?tView(c):sView(c)}</section>`;
+ $('#app').innerHTML=apiP()+cpP()+side()+body}
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,d=b.dataset,val=i=>($('#'+i)||{}).value||'';
+ if(a=='theme'){const r=document.documentElement,n=r.dataset.theme=='dark'?'light':'dark';r.dataset.theme=n;try{localStorage.setItem('cr_th',n)}catch(x){}return}
+ if(a=='api'){v.api=!v.api;render();return}
+ if(a=='saveapi'){API=val('apiu').trim();try{localStorage.setItem('cr_api',API)}catch(x){}v.api=false;toast(API?'เชื่อมชีตแล้ว':'ใช้ข้อมูลในเครื่อง');load();logout();return}
+ if(a=='role'){role=d.r;render();return}
+ if(a=='lm'){lm=d.m;role='s';render();return}
+ if(a=='login'){const n=val('nm').trim();if(!n)return toast('กรุณาใส่ชื่อ');me={role,name:n};try{localStorage.setItem('cr_me',JSON.stringify(me))}catch(x){}v={c:null,a:null,t:'work'};render();return}
+ if(a=='out'){logout();return}
+ if(a=='cp'){v.cp=!v.cp;render();return}
+ if(a=='savecp'){chPw(val('po'),val('pn'));return}
+ if(a=='addstu'){addStu(val('rl'));return}
+ if(a=='rst'){rstPw(d.n);return}
+ if(a=='unen'){unen(d.n);return}
+ if(a=='rescsv'){dl([['ชื่อ','รหัสผ่าน'],...(v.res||[]).map(x=>[x.name,x.pw])],'รหัสผ่านนักเรียน.csv');return}
+ if(a=='selc'){v={c:d.id,a:null,t:'work'}}
+ if(a=='tab'){v.t=d.t;v.e=null;v.del=null}if(a=='opena')v.a=d.id;if(a=='back')v.a=null;
+ if(a=='edita'){v.e=d.id;v.del=null}if(a=='cancela')v.e=null;
+ if(a=='savea'){const o=S.asgs.find(x=>x.id==v.e),t=val('at').trim();if(!t)return toast('ใส่ชื่องานก่อน');put('asgs',{...o,title:t,desc:val('ad'),due:val('adue'),max:+val('am')||10});v.e=null;toast('แก้ไขงานแล้ว')}
+ if(a=='dela'){if(v.del!=d.id){v.del=d.id;render();return}S.subs.filter(s=>s.asg==d.id).forEach(s=>put('subs',s,true));put('asgs',S.asgs.find(x=>x.id==d.id),true);v.del=null;toast('ลบงานและงานที่ส่งแล้ว')}
+ if(a=='csv'){csv(S.classes.find(x=>x.id==v.c));return}
+ if(a=='newc'){const n=val('cn').trim();if(!n)return toast('ใส่ชื่อห้องก่อน');const c={id:uid(),name:n,code:uid().slice(0,5).toUpperCase(),teacher:me.name};put('classes',c);v.c=c.id;toast('สร้างห้องแล้ว รหัส '+c.code)}
+ if(a=='joinc'){if(API){joinApi(val('jc'));return}const c=S.classes.find(x=>x.code==val('jc').trim().toUpperCase());if(!c)return toast('ไม่พบรหัสห้องนี้');if(!S.members.some(m=>m.cls==c.id&&m.name==me.name))put('members',{id:uid(),cls:c.id,name:me.name});v.c=c.id;toast('เข้าร่วมห้องแล้ว')}
+ if(a=='newa'){const t=val('at').trim();if(!t)return toast('ใส่ชื่องานก่อน');put('asgs',{id:uid(),cls:v.c,title:t,desc:val('ad'),due:val('adue'),max:+val('am')||10});toast('สั่งงานแล้ว')}
+ if(a=='submit'){doSubmit(d.id);return}
+ if(a=='grade'){const s=S.subs.find(x=>x.id==d.id),sc=val('sc-'+d.id);if(sc===''||+sc<0||+sc>+d.max)return toast('คะแนนต้องอยู่ระหว่าง 0-'+d.max);put('subs',{...s,score:+sc,fb:val('fb-'+d.id)});toast('บันทึกคะแนนแล้ว')}
+ render()});
+function logout(){me=null;TOK='';try{['cr_me','cr_tok'].forEach(k=>{localStorage.removeItem(k);sessionStorage.removeItem(k)})}catch(x){}v={c:null,a:null,t:'work'};render()}
+async function joinApi(code){try{const r=await(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,op:'join',code:code.trim()})})).json();if(!r.ok)return toast(r.error=='auth'?'เซสชันหมดอายุ':r.error);await pull();v={c:r.cls,a:null,t:'work'};toast('เข้าร่วมห้องแล้ว');render()}catch(e){toast('เชื่อมต่อไม่ได้')}}
+async function doAuth(){const reg=lm=='up',g=i=>($('#'+i)||{}).value||'',n=g('un').trim(),pw=g('pw'),rem=$('#rm').checked;if(!n||!pw)return;toast('กำลังตรวจสอบ…');
+ try{const r=await(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({op:reg?'register':'login',name:n,password:pw,role:role=='t'?'teacher':'student',code:g('tc')})})).json();
+  if(!r.ok)return toast(r.error||'ไม่สำเร็จ');TOK=r.token;me={role:r.user.role=='teacher'?'t':'s',name:r.user.name};
+  const st=rem?localStorage:sessionStorage;try{st.setItem('cr_tok',TOK);st.setItem('cr_me',JSON.stringify(me))}catch(x){}
+  try{if(window.PasswordCredential)await navigator.credentials.store(new PasswordCredential({id:n,password:pw,name:n}))}catch(x){}
+  v={c:null,a:null,t:'work'};await pull();render()}catch(e){toast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้')}}
+document.addEventListener('submit',e=>{if(e.target.id=='lf'){e.preventDefault();doAuth()}});
+load();pull().then(render);render();
+</script></body></html>
