@@ -4,6 +4,7 @@
 <title>ห้องเรียนออนไลน์</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{--bg:#f3f6fb;--sf:#fff;--s2:#eef2f9;--tx:#1f2430;--mu:#667085;--bd:#dde3ee;--ac:#2563eb;--ok:#16794a;--okb:#e3f5ea;--wa:#a15c00;--wab:#fff3d6;--er:#c0362c;--erb:#fde7e5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--sf:#182030;--s2:#202a3d;--tx:#e8ecf4;--mu:#9aa6bd;--bd:#2c3850;--ac:#6ea0ff;--ok:#5fd394;--okb:#143525;--wa:#f0b955;--wab:#3a2c10;--er:#ff8a80;--erb:#3d1a18}}
@@ -76,13 +77,27 @@ function sumView(c){const d=sumData(c);if(!d.as.length)return'<p class="mu">ย�
 function csv(c){const d=sumData(c);const L=[['ชื่อ',...d.as.map(a=>a.title+' /'+a.max),'รวม /'+d.tm,'%']].concat(d.rows.map(r=>[r.n,...r.sc.map(x=>x===null?'':x),r.tot,r.pct.toFixed(0)]));
  const t='\ufeff'+L.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='สรุปคะแนน_'+c.name+'.csv';a.click()}
-async function doSubmit(id){const t=(($('#tx-'+id)||{}).value||'').trim(),f=(($('#fl-'+id)||{}).files||[])[0],o=sub(id,me.name);
- if(!t&&!f&&!(o&&o.furl))return toast('ใส่ข้อความหรือแนบไฟล์ก่อน');
+const pend={};
+const LIM=()=>API?15e6:7e5;
+function pv(id){const el=$('#pv-'+id);if(!el)return;const L=pend[id]||[];el.innerHTML=L.length?(L.every(f=>/^image\//.test(f.type))?'เลือกรูปแล้ว '+L.length+' หน้า → จะรวมเป็น PDF 1 ไฟล์':'ไฟล์ที่เลือก')+'<br>'+L.map((f,i)=>(i+1)+'. '+esc(f.name)+' <a href="#" data-a="rmimg" data-id="'+id+'" data-i="'+i+'">✕ ลบ</a>').join('<br>'):''}
+document.addEventListener('change',e=>{const t=e.target;if(!t.id||t.id.slice(0,3)!='fl-')return;const id=t.id.slice(3);pend[id]=(pend[id]||[]).concat([...t.files]);t.value='';pv(id)});
+const loadImg=f=>new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i)};i.onerror=()=>{URL.revokeObjectURL(u);no(new Error('img'))};i.src=u});
+async function imgsToPdf(L){const{jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',format:'a4',compress:true}),W=210,H=297,M=5;
+ for(let k=0;k<L.length;k++){const im=await loadImg(L[k]),w0=im.naturalWidth,h0=im.naturalHeight,sc=Math.min(1,1800/Math.max(w0,h0)),c=document.createElement('canvas');c.width=Math.round(w0*sc);c.height=Math.round(h0*sc);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
+  const r=Math.min((W-2*M)/c.width,(H-2*M)/c.height),w=c.width*r,hh=c.height*r;if(k)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',.75),'JPEG',(W-w)/2,(H-hh)/2,w,hh)}
+ return pdf.output('blob')}
+async function doSubmit(id){const t=(($('#tx-'+id)||{}).value||'').trim(),L=pend[id]||[],o=sub(id,me.name);
+ if(!t&&!L.length&&!(o&&o.furl))return toast('ใส่ข้อความหรือแนบไฟล์ก่อน');
  let fname=o?o.fname||'':'',furl=o?o.furl||'':'';
- if(f){if(f.size>(API?5e6:7e5))return toast('ไฟล์ใหญ่เกิน '+(API?'5 MB':'700 KB (โหมดทดลอง)'));toast('กำลังอัปโหลด…');
+ if(L.length){let f;
+  try{if(L.every(x=>/^image\//.test(x.type))){if(!window.jspdf)return toast('โหลดตัวสร้าง PDF ไม่ได้ (ต้องมีอินเทอร์เน็ต)');toast('กำลังแปลงรูปเป็น PDF…');f=new File([await imgsToPdf(L)],'งาน-'+me.name.replace(/[\\/:*?"<>|]/g,'')+'.pdf',{type:'application/pdf'})}
+   else if(L.length==1)f=L[0];else return toast('เลือกรูปภาพได้หลายรูป หรือไฟล์เอกสารได้ครั้งละ 1 ไฟล์')}
+  catch(e){return toast('แปลงรูปเป็น PDF ไม่สำเร็จ ลองใหม่หรือลดจำนวนรูป')}
+  if(f.size>LIM())return toast('ไฟล์ใหญ่เกิน '+(API?'15 MB':'700 KB (โหมดทดลอง)')+' (ขนาด '+(f.size/1e6).toFixed(1)+' MB)');toast('กำลังอัปโหลด…');
   try{const u=await new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)});furl=u;fname=f.name;
    if(API){const r=await(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,op:'upload',name:f.name,type:f.type,data:u.split(',')[1]})})).json();if(!r.ok)throw 0;furl=r.url}}
-  catch(e){return toast('อัปโหลดไม่สำเร็จ')}}
+  catch(e){return toast('อัปโหลดไม่สำเร็จ')}
+  delete pend[id]}
  put('subs',{id:o?o.id:uid(),asg:id,name:me.name,text:t,at:new Date().toISOString(),score:null,fb:'',fname,furl});toast('ส่งงานแล้ว');render()}
 
 async function post(b){return(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,...b})})).json()}
@@ -139,7 +154,7 @@ function tView(c){const as=S.asgs.filter(a=>a.cls==c.id),ms=S.members.filter(m=>
 function sView(c){const as=S.asgs.filter(a=>a.cls==c.id);
  return`<h3>งานในห้อง ${esc(c.name)}</h3>`+(as.map(a=>{const s=sub(a.id,me.name),late=!s&&a.due&&a.due<new Date().toISOString().slice(0,10);
  return`<div class="ai"><div class="row"><b>${esc(a.title)}</b>${chip(s)}</div><div class="mu">ส่ง ${fd(a.due)}${late?' · <span style="color:var(--er)">เลยกำหนด</span>':''} · เต็ม ${a.max}</div><p>${link(a.desc)}</p>
- ${has(s)?`<p><b>คะแนน ${s.score}/${a.max}</b>${s.fb?'<br>ความเห็นครู: '+esc(s.fb):''}</p><p class="mu">งานที่ส่ง: ${link(s.text)}</p>${att(s)}`:`<textarea id="tx-${a.id}" placeholder="พิมพ์คำตอบ หรือวางลิงก์งาน (Drive, รูปภาพ)">${s?esc(s.text):''}</textarea>${s?att(s):''}<input type="file" id="fl-${a.id}"><button class="btn s" data-a="submit" data-id="${a.id}">${s?'ส่งอีกครั้ง':'ส่งงาน'}</button>`}</div>`}).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
+ ${has(s)?`<p><b>คะแนน ${s.score}/${a.max}</b>${s.fb?'<br>ความเห็นครู: '+esc(s.fb):''}</p><p class="mu">งานที่ส่ง: ${link(s.text)}</p>${att(s)}`:`<textarea id="tx-${a.id}" placeholder="พิมพ์คำตอบ หรือวางลิงก์งาน (Drive, รูปภาพ)">${s?esc(s.text):''}</textarea>${s?att(s):''}<input type="file" id="fl-${a.id}" multiple accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip"><div class="mu">ถ่ายรูปหรือเลือกรูปได้หลายรูป ระบบรวมเป็น PDF ให้อัตโนมัติ (หรือแนบไฟล์เอกสาร 1 ไฟล์ ไม่เกิน 15 MB)</div><div id="pv-${a.id}" class="mu"></div><button class="btn s" data-a="submit" data-id="${a.id}">${s?'ส่งอีกครั้ง':'ส่งงาน'}</button>`}</div>`}).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
 
 function render(){$('#who').textContent=me?(me.role=='t'?'👩‍🏫 ':'🎒 ')+me.name:'';$('#outb').hidden=!me;$('#cpb').hidden=!(me&&API);
  if(!me){$('#app').innerHTML=apiP()+login();return}
@@ -148,7 +163,7 @@ function render(){$('#who').textContent=me?(me.role=='t'?'👩‍🏫 ':'🎒 ')
  else body=`<section class="card"><div class="row"><h3 style="margin:0">${esc(c.name)}</h3>${me.role=='t'?`<span class="chip c-ok">รหัส ${c.code}</span>`:''}</div>${me.role=='t'&&!v.a?`<div class="tabs" style="margin-top:10px"><button class="btn ${v.t=='work'?'':'o'} s" data-a="tab" data-t="work">งาน</button><button class="btn ${v.t=='ppl'?'':'o'} s" data-a="tab" data-t="ppl">นักเรียน</button><button class="btn ${v.t=='sum'?'':'o'} s" data-a="tab" data-t="sum">สรุปคะแนน</button></div>`:'<hr style="border:0;border-top:1px solid var(--bd)">'}${me.role=='t'?tView(c):sView(c)}</section>`;
  $('#app').innerHTML=apiP()+cpP()+side()+body}
 
-document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,d=b.dataset,val=i=>($('#'+i)||{}).value||'';
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,d=b.dataset,val=i=>($('#'+i)||{}).value||'';if(a=='rmimg'){e.preventDefault();(pend[d.id]||[]).splice(+d.i,1);pv(d.id);return}
  if(a=='theme'){const r=document.documentElement,n=r.dataset.theme=='dark'?'light':'dark';r.dataset.theme=n;try{localStorage.setItem('cr_th',n)}catch(x){}return}
  if(a=='api'){v.api=!v.api;render();return}
  if(a=='saveapi'){API=val('apiu').trim();try{localStorage.setItem('cr_api',API)}catch(x){}v.api=false;toast(API?'เชื่อมชีตแล้ว':'ใช้ข้อมูลในเครื่อง');load();logout();return}
