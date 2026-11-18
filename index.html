@@ -43,7 +43,7 @@ const K='classroom_v1',$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>'i'+Math.random().toString(36).slice(2,9);
 const mkCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ',P=A+'23456789';let s=A[Math.random()*A.length|0];for(let i=0;i<4;i++)s+=P[Math.random()*P.length|0];return s};
-const DEFAULT_API='https://script.google.com/macros/s/AKfycbwwmR4OduwrA4KTP3oWCUG3K10mbqTaYaquH6fBt8JqBOd9r7G3iLfCTBeoNMtD_luwwA/exec';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
+const DEFAULT_API='https://script.google.com/macros/s/AKfycbzUGK054I6L9m-H4n-yagzx5c3qu3CAUGabeYJ-onocqsodVGVzC0MFQuL8W1A5UrHFIg/exec';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
 let S,me=null,v={c:null,a:null,t:'work'},API='',role='t',TOK='',lm='in';
 try{API=localStorage.getItem('cr_api')||DEFAULT_API;me=JSON.parse(localStorage.getItem('cr_me')||sessionStorage.getItem('cr_me')||'null');TOK=localStorage.getItem('cr_tok')||sessionStorage.getItem('cr_tok')||'';const th=localStorage.getItem('cr_th');if(th)document.documentElement.dataset.theme=th}catch(e){}
 if(API&&!TOK)me=null;
@@ -55,8 +55,8 @@ function seed(){const n=['กฤษณะ เป้าเงิน','กิต�
 function load(){if(API){S={classes:[],members:[],asgs:[],subs:[]};return}try{S=JSON.parse(localStorage.getItem(K))}catch(e){}if(!S||!S.classes)S=seed()}
 function save(){if(API)return;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('เก็บในเครื่องไม่ได้ (พื้นที่เต็มหรือถูกบล็อก)')}}
 function put(t,row,del){const L=S[t],i=L.findIndex(x=>x.id===row.id);if(del){if(i>=0)L.splice(i,1)}else if(i>=0)L[i]=row;else L.push(row);save();
- if(API)fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,table:t,row,op:del?'del':'up'})}).then(r=>r.text()).then(t=>{try{return JSON.parse(t)}catch(e){throw new Error('NOJSON')}}).then(r=>{if(!r.ok){showErr('เซิร์ฟเวอร์ปฏิเสธการบันทึก: '+esc(r.error||'ไม่ทราบสาเหตุ'));toast(r.error=='auth'?'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่':(r.error||'บันทึกไม่สำเร็จ'));pull().then(render)}}).catch(diag)}
-async function pull(){if(!API||!TOK)return;try{const r=await(await fetch(API+'?token='+encodeURIComponent(TOK))).json();if(r.error==='auth'){logout();toast('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');return}S=r}catch(e){diag(e)}}
+ if(API)fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,table:t,row,op:del?'del':'up'})}).then(r=>r.text()).then(t=>{try{return JSON.parse(t)}catch(e){throw new Error('NOJSON')}}).then(r=>{if(!r.ok&&r.error==='auth'){logout();showErr('เซิร์ฟเวอร์ไม่รับโทเคนล็อกอิน (เหตุผล: '+esc(r.why||'ไม่ระบุ — Code.gs ยังเป็นเวอร์ชันเก่า')+') กรุณาล็อกอินใหม่');return}if(!r.ok){showErr('เซิร์ฟเวอร์ปฏิเสธการบันทึก: '+esc(r.error||'ไม่ทราบสาเหตุ'));toast(r.error=='auth'?'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่':(r.error||'บันทึกไม่สำเร็จ'));pull().then(render)}}).catch(diag)}
+async function pull(){if(!API||!TOK)return;try{const r=await(await fetch(API+'?token='+encodeURIComponent(TOK))).json();if(r.error==='auth'){logout();showErr('เซิร์ฟเวอร์ไม่รับโทเคนล็อกอิน (เหตุผล: '+esc(r.why||'ไม่ระบุ — Code.gs ยังเป็นเวอร์ชันเก่า')+') กรุณาล็อกอินใหม่');return}S=r}catch(e){diag(e)}}
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2400)}
 const has=s=>s&&s.score!==null&&s.score!==''&&s.score!==undefined;
 const sub=(a,n)=>S.subs.find(s=>s.asg===a&&s.name===n);
