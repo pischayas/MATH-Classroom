@@ -64,7 +64,8 @@ const stat=s=>!s?['ยังไม่ส่ง','c-no']:has(s)?['ตรวจแ
 const chip=s=>{const[t,c]=stat(s);return`<span class="chip ${c}">${t}</span>`};
 const fd=d=>d?new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'-';
 const link=t=>esc(t).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
-const myC=()=>me.role==='t'?S.classes.filter(c=>c.teacher===me.name):S.classes.filter(c=>S.members.some(m=>m.cls===c.id&&m.name===me.name));
+const nmz=s=>String(s==null?'':s).normalize('NFC').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().toLowerCase();
+const myC=()=>me.role==='t'?S.classes.filter(c=>nmz(c.teacher)===nmz(me.name)):S.classes.filter(c=>S.members.some(m=>m.cls===c.id&&m.name===me.name));
 const att=s=>s&&s.furl?`<div><a href="${esc(s.furl)}" download="${esc(s.fname)}" target="_blank" rel="noopener">📎 ${esc(s.fname||'ไฟล์แนบ')}</a></div>`:'';
 const apiP=()=>v.api?`<div class="card" style="grid-column:1/-1"><h3>เชื่อม Google Sheets</h3><input id="apiu" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(API)}"><button class="btn s" data-a="saveapi">บันทึก</button> <span class="mu">เว้นว่าง = ใช้ข้อมูลในเครื่อง</span></div>`:'';
 function sumData(c){const as=S.asgs.filter(a=>a.cls==c.id),ms=S.members.filter(m=>m.cls==c.id),tm=as.reduce((p,a)=>p+ +a.max,0);
