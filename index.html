@@ -55,7 +55,7 @@ const K='classroom_v1',$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>'i'+Math.random().toString(36).slice(2,9);
 const mkCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ',P=A+'23456789';let s=A[Math.random()*A.length|0];for(let i=0;i<4;i++)s+=P[Math.random()*P.length|0];return s};
-const DEFAULT_API='';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
+const DEFAULT_API='https://script.google.com/macros/s/AKfycbzUGK054I6L9m-H4n-yagzx5c3qu3CAUGabeYJ-onocqsodVGVzC0MFQuL8W1A5UrHFIg/exec';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
 let S,me=null,v={c:null,a:null,t:'work'},API='',role='t',TOK='',lm='in',loaded=false;
 const setBusy=n=>{const b=$('#bar');if(b)b.className=n?'on':''};
 function cacheS(){if(!API||!me||!S||S.error)return;try{const x=Object.assign({},S);delete x._dbg;(localStorage.getItem('cr_tok')?localStorage:sessionStorage).setItem('cr_cache',JSON.stringify({u:me.name,s:x}))}catch(e){}}
