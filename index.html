@@ -5,6 +5,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js" onload="mj()"></script>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#2563eb"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 :root{--bg:#f3f6fb;--sf:#fff;--s2:#eef2f9;--tx:#1f2430;--mu:#667085;--bd:#dde3ee;--ac:#2563eb;--ok:#16794a;--okb:#e3f5ea;--wa:#a15c00;--wab:#fff3d6;--er:#c0362c;--erb:#fde7e5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--sf:#182030;--s2:#202a3d;--tx:#e8ecf4;--mu:#9aa6bd;--bd:#2c3850;--ac:#6ea0ff;--ok:#5fd394;--okb:#143525;--wa:#f0b955;--wab:#3a2c10;--er:#ff8a80;--erb:#3d1a18}}
@@ -38,6 +42,11 @@ a{color:var(--ac)}
 @media print{body *{visibility:hidden}#ppl,#ppl *{visibility:visible}#ppl{position:absolute;left:0;top:0;width:100%;color:#000;background:#fff}#ppl *{color:#000!important;background:transparent!important}.noprint{display:none!important}}
 #bar{position:fixed;left:0;top:0;height:3px;width:100%;z-index:40;opacity:0;transition:opacity .2s;pointer-events:none;background:linear-gradient(90deg,transparent,var(--ac),transparent) no-repeat;background-size:40% 100%;animation:bar 1.1s linear infinite}#bar.on{opacity:1}@keyframes bar{from{background-position:-40% 0}to{background-position:140% 0}}
 .sk{height:46px;border-radius:10px;margin:10px 0;background:linear-gradient(90deg,var(--s2),var(--bd),var(--s2));background-size:200% 100%;animation:sk 1.3s ease infinite}.sk.w6{width:60%;height:26px}@keyframes sk{from{background-position:200% 0}to{background-position:-200% 0}}
+
+.bar{display:flex;align-items:center;gap:8px;margin:3px 0}.bar span{width:34px;text-align:right}.bar i{display:block;height:14px;border-radius:7px;background:var(--ac);min-width:2px}.bar b{min-width:20px}
+.bdg{display:inline-flex;flex-direction:column;align-items:center;width:96px;padding:8px 4px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);text-align:center;font-size:.75rem;margin:4px}.bdg b{font-size:1.8rem;display:block;line-height:1.2}.bdg.off{opacity:.3;filter:grayscale(1)}
+#vw{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}.vh,.vg{display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--sf);flex-wrap:wrap}.vh{padding-top:calc(8px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--bd)}.vg{border-top:1px solid var(--bd);padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}.vs{flex:1}.vb{flex:1;min-height:0;background:#555;display:flex}.vb iframe{flex:1}
+.katex{font-size:1.05em}
 </style></head><body><div id="bar"></div>
 <header><b>🏫 ห้องเรียนออนไลน์</b><span id="who" class="mu" style="color:#fff"></span><button data-a="theme">🌓</button><button data-a="api">⚙️</button><button data-a="cp" id="cpb" hidden>🔑 รหัสผ่าน</button><button data-a="out" id="outb" hidden>ออก</button></header>
 <main id="app"></main><div id="toast"></div>
@@ -46,11 +55,11 @@ const K='classroom_v1',$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>'i'+Math.random().toString(36).slice(2,9);
 const mkCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ',P=A+'23456789';let s=A[Math.random()*A.length|0];for(let i=0;i<4;i++)s+=P[Math.random()*P.length|0];return s};
-const DEFAULT_API='https://script.google.com/macros/s/AKfycbzUGK054I6L9m-H4n-yagzx5c3qu3CAUGabeYJ-onocqsodVGVzC0MFQuL8W1A5UrHFIg/exec';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
+const DEFAULT_API='';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
 let S,me=null,v={c:null,a:null,t:'work'},API='',role='t',TOK='',lm='in',loaded=false;
 const setBusy=n=>{const b=$('#bar');if(b)b.className=n?'on':''};
 function cacheS(){if(!API||!me||!S||S.error)return;try{const x=Object.assign({},S);delete x._dbg;(localStorage.getItem('cr_tok')?localStorage:sessionStorage).setItem('cr_cache',JSON.stringify({u:me.name,s:x}))}catch(e){}}
-function readCache(){if(!API||!me||!TOK)return false;try{const c=JSON.parse(localStorage.getItem('cr_cache')||sessionStorage.getItem('cr_cache')||'null');if(c&&c.u===me.name&&c.s&&c.s.classes){S=c.s;return true}}catch(e){}return false}
+function readCache(){if(!API||!me||!TOK)return false;try{const c=JSON.parse(localStorage.getItem('cr_cache')||sessionStorage.getItem('cr_cache')||'null');if(c&&c.u===me.name&&c.s&&c.s.classes){S=c.s;S.ann=S.ann||[];return true}}catch(e){}return false}
 const skel=()=>'<section class="card"><h3>ห้องเรียนของฉัน</h3><div class="sk"></div><div class="sk"></div></section><section class="card"><div class="sk w6"></div><div class="sk"></div><div class="sk"></div><p class="mu">กำลังโหลดห้องเรียน… ครั้งแรกอาจใช้เวลา 5–10 วินาที</p></section>';
 try{API=localStorage.getItem('cr_api')||DEFAULT_API;me=JSON.parse(localStorage.getItem('cr_me')||sessionStorage.getItem('cr_me')||'null');TOK=localStorage.getItem('cr_tok')||sessionStorage.getItem('cr_tok')||'';const th=localStorage.getItem('cr_th');if(th)document.documentElement.dataset.theme=th}catch(e){}
 if(API&&!TOK)me=null;
@@ -59,12 +68,12 @@ function seed(){const n=['กฤษณะ เป้าเงิน','กิต�
  members:n.map((x,i)=>({id:'m'+i,cls:'c1',name:x})).concat(n.slice(0,2).map((x,i)=>({id:'k'+i,cls:'c2',name:x}))),
  asgs:[{id:'a1',cls:'c1',title:'แบบฝึกหัด สมการเชิงเส้น',desc:'ทำข้อ 1-10 หน้า 45 แล้วพิมพ์คำตอบหรือแนบลิงก์รูปงาน',due:'2026-11-10',max:10},{id:'a2',cls:'c1',title:'โจทย์ปัญหา ร้อยละ',desc:'แสดงวิธีทำ 5 ข้อ',due:'2026-11-20',max:20},{id:'a3',cls:'c2',title:'รายงานการทดลอง',desc:'สรุปผลการทดลองสั้นๆ',due:'2026-11-15',max:20}],
  subs:[{id:'s1',asg:'a1',name:n[0],text:'ข้อ 1 x=3 ข้อ 2 x=5 …',at:'2026-11-02T09:10',score:9,fb:'ดีมาก ข้อ 7 ตรวจสอบอีกครั้ง'},{id:'s2',asg:'a1',name:n[1],text:'https://example.com/my-work.jpg',at:'2026-11-03T08:00',score:null,fb:''}]}}
-function load(){if(API){S={classes:[],members:[],asgs:[],subs:[]};return}try{S=JSON.parse(localStorage.getItem(K))}catch(e){}if(!S||!S.classes)S=seed()}
+function load(){if(API){S={classes:[],members:[],asgs:[],subs:[],ann:[]};return}try{S=JSON.parse(localStorage.getItem(K))}catch(e){}if(!S||!S.classes)S=seed();S.ann=S.ann||[]}
 function save(){if(API)return;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('เก็บในเครื่องไม่ได้ (พื้นที่เต็มหรือถูกบล็อก)')}}
 function put(t,row,del){const L=S[t],i=L.findIndex(x=>x.id===row.id);if(del){if(i>=0)L.splice(i,1)}else if(i>=0)L[i]=row;else L.push(row);save();cacheS();
  if(API)fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,table:t,row,op:del?'del':'up'})}).then(r=>r.text()).then(t=>{try{return JSON.parse(t)}catch(e){throw new Error('NOJSON')}}).then(r=>{if(!r.ok&&r.error==='auth'){logout();showErr('เซิร์ฟเวอร์ไม่รับโทเคนล็อกอิน (เหตุผล: '+esc(r.why||'ไม่ระบุ — Code.gs ยังเป็นเวอร์ชันเก่า')+') กรุณาล็อกอินใหม่');return}if(!r.ok){showErr('เซิร์ฟเวอร์ปฏิเสธการบันทึก: '+esc(r.error||'ไม่ทราบสาเหตุ'));toast(r.error=='auth'?'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่':(r.error||'บันทึกไม่สำเร็จ'));pull().then(render)}}).catch(diag)}
 async function pull(){if(!API||!TOK)return;setBusy(1);try{await pull0();cacheS()}finally{loaded=true;setBusy(0)}}
-async function pull0(){try{const r=await(await fetch(API+'?token='+encodeURIComponent(TOK)+'&_='+Date.now(),{cache:'no-store'})).json();if(r.error==='auth'){logout();showErr('เซิร์ฟเวอร์ไม่รับโทเคนล็อกอิน (เหตุผล: '+esc(r.why||'ไม่ระบุ — Code.gs ยังเป็นเวอร์ชันเก่า')+') กรุณาล็อกอินใหม่');return}S=r;const D=r._dbg;if(D&&(D.nClasses||D.orphans))showErr('ไม่พบห้องของ <b>'+esc(D.user)+'</b> · ในชีต classes มี '+D.nClasses+' ห้อง'+(D.teachers.length?' ของครู: '+D.teachers.map(esc).join(', '):'')+' · มี '+D.orphans+' รหัสห้องใน members ที่ไม่มีในชีต classes<br>(ถ่ายภาพข้อความนี้ส่งให้ผู้ช่วยได้)')}catch(e){diag(e)}}
+async function pull0(){try{const r=await(await fetch(API+'?token='+encodeURIComponent(TOK)+'&_='+Date.now(),{cache:'no-store'})).json();if(r.error==='auth'){logout();showErr('เซิร์ฟเวอร์ไม่รับโทเคนล็อกอิน (เหตุผล: '+esc(r.why||'ไม่ระบุ — Code.gs ยังเป็นเวอร์ชันเก่า')+') กรุณาล็อกอินใหม่');return}S=r;S.ann=S.ann||[];const D=r._dbg;if(D&&(D.nClasses||D.orphans))showErr('ไม่พบห้องของ <b>'+esc(D.user)+'</b> · ในชีต classes มี '+D.nClasses+' ห้อง'+(D.teachers.length?' ของครู: '+D.teachers.map(esc).join(', '):'')+' · มี '+D.orphans+' รหัสห้องใน members ที่ไม่มีในชีต classes<br>(ถ่ายภาพข้อความนี้ส่งให้ผู้ช่วยได้)')}catch(e){diag(e)}}
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2400)}
 const has=s=>s&&s.score!==null&&s.score!==''&&s.score!==undefined;
 const sub=(a,n)=>S.subs.find(s=>s.asg===a&&s.name===n);
@@ -74,18 +83,63 @@ const fd=d=>d?new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short
 const link=t=>esc(t).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
 const nmz=s=>String(s==null?'':s).normalize('NFC').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().toLowerCase();
 const myC=()=>me.role==='t'?S.classes.filter(c=>nmz(c.teacher)===nmz(me.name)):S.classes.filter(c=>S.members.some(m=>m.cls===c.id&&m.name===me.name));
-const att=s=>s&&s.furl?`<div><a href="${esc(s.furl)}" download="${esc(s.fname)}" target="_blank" rel="noopener">📎 ${esc(s.fname||'ไฟล์แนบ')}</a></div>`:'';
+const att=s=>s&&s.furl?`<div><a href="${esc(s.furl)}" target="_blank" rel="noopener">📎 ${esc(s.fname||'ไฟล์แนบ')}</a> <button class="btn s o" data-a="view" data-sid="${s.id}">👁 ดูไฟล์</button></div>`:'';
 const apiP=()=>v.api?`<div class="card" style="grid-column:1/-1"><h3>เชื่อม Google Sheets</h3><input id="apiu" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(API)}"><button class="btn s" data-a="saveapi">บันทึก</button> <span class="mu">เว้นว่าง = ใช้ข้อมูลในเครื่อง</span></div>`:'';
+const p2=n=>String(n).padStart(2,'0');
+const localDate=()=>{const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())};
+const nowL=()=>{const d=new Date();return localDate()+'T'+p2(d.getHours())+':'+p2(d.getMinutes())};
+const isLate=(a,s)=>!!(s&&a&&a.due&&s.at&&String(s.at).slice(0,10)>a.due);
+const over=a=>!!(a.due&&a.due<localDate());
+const dleft=a=>Math.round((new Date(a.due+'T00:00')-new Date(localDate()+'T00:00'))/864e5);
+const dueChip=a=>{if(!a.due)return'';const n=dleft(a);return n<0?'<span class="chip c-no">เลยกำหนด '+(-n)+' วัน</span>':n==0?'<span class="chip c-no">ส่งวันนี้</span>':n==1?'<span class="chip c-wait">พรุ่งนี้</span>':n<=3?'<span class="chip c-wait">อีก '+n+' วัน</span>':'<span class="chip">อีก '+n+' วัน</span>'};
+const chipA=(a,s)=>chip(s)+(isLate(a,s)?' <span class="chip c-wait">ส่งช้า</span>':'');
+const COL=['#2563eb','#16a34a','#ea580c','#9333ea','#db2777','#0891b2','#ca8a04','#475569'],ICO=['📘','📐','🔬','🌏','🎨','🎵','💻','📚','⚽','🧪'];
+const cc=c=>c.color||COL[0],ci=c=>c.icon||'📘';
+const grade=p=>p>=80?4:p>=75?3.5:p>=70?3:p>=65?2.5:p>=60?2:p>=55?1.5:p>=50?1:0;
+const gv=i=>(($('#'+i)||{}).value||'');
+const quizOf=a=>{try{return JSON.parse(a.quiz||'[]')||[]}catch(e){return[]}};
+function parseQuiz(t){const out=[];String(t||'').split(/\n\s*\n/).forEach(b=>{const q=[],o=[];let ans=-1;b.split('\n').map(x=>x.trim()).filter(Boolean).forEach(l=>{if(/^[-*](\s|$)/.test(l)){o.push(l.slice(1).trim());if(l[0]=='*')ans=o.length-1}else q.push(l)});if(q.length&&o.length>=2&&ans>=0)out.push({q:q.join('\n'),o,ans})});return out}
+const quizText=a=>quizOf(a).map(x=>x.q+'\n'+x.o.map((t,i)=>(i==x.ans?'* ':'- ')+t).join('\n')).join('\n\n');
+function copyTxt(t){const ok=()=>toast('คัดลอกแล้ว');if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).then(ok).catch(()=>fb());fb();function fb(){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();try{document.execCommand('copy');ok()}catch(e){toast('คัดลอกไม่ได้')}x.remove()}}
+function mj(){if(window.renderMathInElement){try{renderMathInElement($('#app'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})}catch(e){}}}
+let CF=0;function confetti(){const c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;z-index:80;pointer-events:none';c.width=innerWidth;c.height=innerHeight;document.body.appendChild(c);const x=c.getContext('2d'),P=Array.from({length:130},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,r:4+Math.random()*5,vx:-2+Math.random()*4,vy:2+Math.random()*4,col:COL[Math.random()*COL.length|0],rot:Math.random()*6}));let t=0;(function f(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle=p.col;x.fillRect(-p.r,-p.r/2,p.r*2,p.r);x.restore()});if(++t<150)requestAnimationFrame(f);else c.remove()})()}
+const seenK=()=>'cr_seen_'+(me?me.name:'');
+const getSeen=()=>{try{return JSON.parse(localStorage.getItem(seenK())||'[]')}catch(e){return[]}};
+const setSeen=L=>{try{localStorage.setItem(seenK(),JSON.stringify(L.slice(-300)))}catch(e){}};
+async function upFile(f){const u=await new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)});if(!API)return{url:u};const r=await post({op:'upload',name:f.name,type:f.type,data:u.split(',')[1]});if(!r.ok)throw 0;return{url:r.url}}
 function sumData(c){const as=S.asgs.filter(a=>a.cls==c.id),ms=S.members.filter(m=>m.cls==c.id),tm=as.reduce((p,a)=>p+ +a.max,0);
- const rows=ms.map(m=>{const sc=as.map(a=>{const s=sub(a.id,m.name);return has(s)?+s.score:null});const tot=sc.reduce((p,x)=>p+(x||0),0);return{n:m.name,sc,tot,pct:tm?tot/tm*100:0}});
+ const rows=ms.map(m=>{const sc=as.map(a=>{const s=sub(a.id,m.name);return has(s)?+s.score:null});const tot=sc.reduce((p,x)=>p+(x||0),0),pct=tm?tot/tm*100:0;return{n:m.name,sid:m.sid||'',sc,tot,pct,g:grade(pct)}});
  const avg=as.map((a,i)=>{const g=rows.filter(r=>r.sc[i]!==null);return g.length?g.reduce((p,r)=>p+r.sc[i],0)/g.length:null});
- return{as,rows,tm,avg}}
+ const sent=as.map(a=>ms.filter(m=>sub(a.id,m.name)).length);
+ return{as,rows,tm,avg,sent,N:ms.length}}
 function sumView(c){const d=sumData(c);if(!d.as.length)return'<p class="mu">ยังไม่มีงานให้สรุป</p>';const f=x=>x===null?'-':+x.toFixed(1);
- const ta=d.rows.length?d.rows.reduce((p,r)=>p+r.tot,0)/d.rows.length:null;
- return`<div class="row"><h3>สรุปคะแนนรวม (เต็ม ${d.tm})</h3><button class="btn s o" data-a="csv">⬇ CSV</button></div><div class="tw"><table><tr><th>ชื่อ</th>${d.as.map(a=>`<th>${esc(a.title)}<br><span class="mu">/${a.max}</span></th>`).join('')}<th>รวม</th><th>%</th></tr>${d.rows.map(r=>`<tr><td>${esc(r.n)}</td>${r.sc.map(x=>`<td>${f(x)}</td>`).join('')}<td><b>${r.tot}</b></td><td>${r.pct.toFixed(0)}%</td></tr>`).join('')}<tr><td><b>เฉลี่ยห้อง</b></td>${d.avg.map(x=>`<td><b>${f(x)}</b></td>`).join('')}<td><b>${f(ta)}</b></td><td></td></tr></table></div><p class="mu">“-” คือยังไม่ส่งหรือยังไม่ตรวจ (นับเป็น 0 ในคะแนนรวม)</p>`}
-function csv(c){const d=sumData(c);const L=[['ชื่อ',...d.as.map(a=>a.title+' /'+a.max),'รวม /'+d.tm,'%']].concat(d.rows.map(r=>[r.n,...r.sc.map(x=>x===null?'':x),r.tot,r.pct.toFixed(0)]));
+ const ta=d.rows.length?d.rows.reduce((p,r)=>p+r.tot,0)/d.rows.length:null,P=d.rows.map(r=>r.pct),ap=P.length?P.reduce((p,x)=>p+x,0)/P.length:0;
+ const rate=d.N&&d.as.length?d.sent.reduce((p,x)=>p+x,0)/(d.N*d.as.length)*100:0;
+ const G=[4,3.5,3,2.5,2,1.5,1,0],cnt=G.map(g=>d.rows.filter(r=>r.g==g).length),mx=Math.max(1,...cnt);
+ return`<div class="row"><h3>สรุปคะแนนรวม (เต็ม ${d.tm})</h3><button class="btn s o" data-a="csv">⬇ CSV</button></div>
+ <div class="st" style="grid-template-columns:repeat(4,1fr)"><div><b>${d.N}</b>นักเรียน</div><div><b>${rate.toFixed(0)}%</b>ส่งงานเฉลี่ย</div><div><b>${ap.toFixed(0)}%</b>คะแนนเฉลี่ย</div><div><b>${P.length?Math.max(...P).toFixed(0):'-'}/${P.length?Math.min(...P).toFixed(0):'-'}</b>สูงสุด/ต่ำสุด %</div></div>
+ <div class="ai"><b>การกระจายเกรด</b> <span class="mu">(80+=4 · 75=3.5 · 70=3 · 65=2.5 · 60=2 · 55=1.5 · 50=1)</span>${G.map((g,i)=>`<div class="bar"><span>${g}</span><i style="width:${cnt[i]/mx*100}%"></i><b>${cnt[i]}</b></div>`).join('')}</div>
+ <div class="tw"><table><tr><th>ชื่อ</th>${d.as.map(a=>`<th>${esc(a.title)}<br><span class="mu">/${a.max}</span></th>`).join('')}<th>รวม</th><th>%</th><th>เกรด</th></tr>${d.rows.map(r=>`<tr><td>${esc(r.n)}</td>${r.sc.map(x=>`<td>${f(x)}</td>`).join('')}<td><b>${r.tot}</b></td><td>${r.pct.toFixed(0)}%</td><td><b>${r.g}</b></td></tr>`).join('')}<tr><td><b>เฉลี่ยห้อง</b></td>${d.avg.map(x=>`<td><b>${f(x)}</b></td>`).join('')}<td><b>${f(ta)}</b></td><td></td><td></td></tr><tr><td class="mu">ส่งแล้ว</td>${d.sent.map(x=>`<td class="mu">${x}/${d.N}</td>`).join('')}<td></td><td></td><td></td></tr></table></div><p class="mu">“-” คือยังไม่ส่งหรือยังไม่ตรวจ (นับเป็น 0 ในคะแนนรวม) · เกรดคำนวณจากเปอร์เซ็นต์คะแนนรวม</p>`}
+function csv(c){const d=sumData(c);const L=[['รหัสนักเรียน','ชื่อ',...d.as.map(a=>a.title+' /'+a.max),'รวม /'+d.tm,'%','เกรด']].concat(d.rows.map(r=>[r.sid,r.n,...r.sc.map(x=>x===null?'':x),r.tot,r.pct.toFixed(0),r.g]));
  const t='\ufeff'+L.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='สรุปคะแนน_'+c.name+'.csv';a.click()}
+const VB={};let VW=null;
+const FREAD=/\.(pdf|png|jpe?g|gif|webp)$/i;
+async function vwSrc(it){const u=it.url;if(VB[u])return VB[u];let r=null;
+ try{let blob=null;if(/^data:/.test(u))blob=await(await fetch(u)).blob();
+  else if(API&&FREAD.test(it.name||'')){const x=await post({op:'getfile',url:u});if(x.ok){const bin=atob(x.data),ab=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)ab[i]=bin.charCodeAt(i);blob=new Blob([ab],{type:x.mime})}}
+  if(blob)r={src:URL.createObjectURL(blob),type:/^image\//.test(blob.type)?'img':'doc'}}catch(e){}
+ if(!r){const m=u.match(/\/d\/([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);r={src:m&&/google\.com/.test(u)?'https://drive.google.com/file/d/'+m[1]+'/preview':u,type:'doc'}}
+ return VB[u]=r}
+function vgrade(it){const s=S.subs.find(x=>x.id==it.sid),A=S.asgs.find(x=>x.id==(s||{}).asg);if(!s||!A)return'';
+ return`<div class="vg"><span>คะแนน</span><input id="vsc" type="number" min="0" max="${A.max}" value="${has(s)?s.score:''}" style="width:80px;margin:0"><span class="mu">/ ${A.max}</span><input id="vfb" value="${esc(s.fb)}" placeholder="ความเห็น" style="flex:1;min-width:140px;margin:0"><button class="btn s o" data-a="vq" data-t="เยี่ยมมาก">เยี่ยมมาก</button><button class="btn s o" data-a="vq" data-t="ขาดวิธีทำ">ขาดวิธีทำ</button><button class="btn s o" data-a="vq" data-t="ตรวจคำตอบอีกครั้ง">ตรวจอีกครั้ง</button><button class="btn s" data-a="vsave" data-id="${s.id}">บันทึก${VW.i<VW.list.length-1?' › ถัดไป':''}</button></div>`}
+async function vwShow(){let el=$('#vw');if(!el){el=document.createElement('div');el.id='vw';document.body.appendChild(el)}
+ const it=VW.list[VW.i],n=VW.list.length;
+ el.innerHTML=`<div class="vh"><b>${esc(it.who||it.name||'')}</b><span class="mu">${esc(it.name||'')}${n>1?' · '+(VW.i+1)+'/'+n:''}</span><span class="vs"></span>${n>1?'<button class="btn s o" data-a="vprev">‹ ก่อนหน้า</button><button class="btn s o" data-a="vnext">ถัดไป ›</button>':''}<a class="btn s o" href="${esc(it.url.startsWith('data:')?'#':it.url)}" target="_blank" rel="noopener">เปิดแท็บใหม่</a><button class="btn s" data-a="vclose">✕ ปิด</button></div><div class="vb" id="vb"><p style="padding:20px;color:#fff">กำลังโหลดไฟล์…</p></div>${me&&me.role=='t'&&it.sid?vgrade(it):''}`;
+ const my=VW.i,u=await vwSrc(it);if(!VW||VW.i!==my)return;const vb=$('#vb');if(!vb)return;
+ vb.innerHTML=u.type=='img'?`<img src="${u.src}" style="max-width:100%;max-height:100%;margin:auto;display:block;object-fit:contain">`:`<iframe src="${u.src}" style="border:0;width:100%;height:100%;background:#fff"></iframe>`}
+function vwOpen(list,i,a){if(!list.length)return toast('ไม่มีไฟล์ให้เปิด');VW={list,i,a};vwShow()}
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&VW){const el=$('#vw');if(el)el.remove();VW=null}});
 const pend={};
 const LIM=()=>API?15e6:7e5;
 function pv(id){const el=$('#pv-'+id);if(!el)return;const L=pend[id]||[];el.innerHTML=L.length?(L.every(f=>/^image\//.test(f.type))?'เลือกรูปแล้ว '+L.length+' หน้า → จะรวมเป็น PDF 1 ไฟล์':'ไฟล์ที่เลือก')+'<br>'+L.map((f,i)=>(i+1)+'. '+esc(f.name)+' <a href="#" data-a="rmimg" data-id="'+id+'" data-i="'+i+'">✕ ลบ</a>').join('<br>'):''}
@@ -96,7 +150,7 @@ async function imgsToPdf(L){const{jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',f
   const r=Math.min((W-2*M)/c.width,(H-2*M)/c.height),w=c.width*r,hh=c.height*r;if(k)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',.75),'JPEG',(W-w)/2,(H-hh)/2,w,hh)}
  return pdf.output('blob')}
 async function doSubmit(id){const t=(($('#tx-'+id)||{}).value||'').trim(),L=pend[id]||[],o=sub(id,me.name);
- if(!t&&!L.length&&!(o&&o.furl))return toast('ใส่ข้อความหรือแนบไฟล์ก่อน');
+ if(!t&&!L.length&&!(o&&o.furl))return toast('ใส่ข้อความหรือแนบไฟล์ก่อน');const A0=S.asgs.find(x=>x.id==id);if(A0&&A0.mode=='hard'&&over(A0))return toast('หมดเวลาส่งงานแล้ว (ปิดรับหลังกำหนด)');
  let fname=o?o.fname||'':'',furl=o?o.furl||'':'';
  if(L.length){let f;
   try{if(L.every(x=>/^image\//.test(x.type))){if(!window.jspdf)return toast('โหลดตัวสร้าง PDF ไม่ได้ (ต้องมีอินเทอร์เน็ต)');toast('กำลังแปลงรูปเป็น PDF…');f=new File([await imgsToPdf(L)],'งาน-'+me.name.replace(/[\\/:*?"<>|]/g,'')+'.pdf',{type:'application/pdf'})}
@@ -107,7 +161,7 @@ async function doSubmit(id){const t=(($('#tx-'+id)||{}).value||'').trim(),L=pend
    if(API){const r=await(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,op:'upload',name:f.name,type:f.type,data:u.split(',')[1]})})).json();if(!r.ok)throw 0;furl=r.url}}
   catch(e){return toast('อัปโหลดไม่สำเร็จ')}
   delete pend[id]}
- put('subs',{id:o?o.id:uid(),asg:id,name:me.name,text:t,at:new Date().toISOString(),score:null,fb:'',fname,furl});toast('ส่งงานแล้ว');render()}
+ put('subs',{id:o?o.id:uid(),asg:id,name:me.name,text:t,at:nowL(),score:null,fb:'',fname,furl});toast('ส่งงานแล้ว');render()}
 
 async function post(b){return(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,...b})})).json()}
 function dl(L,name){const t='\ufeff'+L.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=name;a.click()}
@@ -161,33 +215,80 @@ function login(){if(API)return loginApi();const names=[...new Set(S.members.map(
  <button class="btn" style="width:100%;margin-top:6px" data-a="login">เข้าใช้งาน</button><p class="mu">ต้นแบบนี้ยังไม่มีรหัสผ่าน ใช้ชื่อเพื่อแยกมุมมอง</p></div>`}
 
 function side(){const cs=myC();
- return`<aside class="card"><h3>${me.role=='t'?'ห้องเรียนของฉัน':'วิชาที่เรียน'}</h3>${cs.map(c=>`<button class="ci ${v.c==c.id?'on':''}" data-a="selc" data-id="${c.id}">${esc(c.name)}<small>${me.role=='t'?'รหัสเข้าห้อง '+c.code+' · '+S.members.filter(m=>m.cls==c.id).length+' คน':esc(c.teacher)}</small></button>`).join('')||'<p class="mu">ยังไม่มีห้อง</p>'}
+ return`<aside class="card"><button class="ci ${v.c?'':'on'}" data-a="home">🏠 ${me.role=='t'?'งานรอตรวจ':'หน้าแรกของฉัน'}</button><h3 style="margin-top:12px">${me.role=='t'?'ห้องเรียนของฉัน':'วิชาที่เรียน'}</h3>${cs.map(c=>`<button class="ci ${v.c==c.id?'on':''}" style="border-left:5px solid ${cc(c)}" data-a="selc" data-id="${c.id}">${ci(c)} ${esc(c.name)}<small>${me.role=='t'?'รหัสเข้าห้อง '+c.code+' · '+S.members.filter(m=>m.cls==c.id).length+' คน':esc(c.teacher)}</small></button>`).join('')||'<p class="mu">ยังไม่มีห้อง</p>'}
  ${me.role=='t'?'<input id="cn" placeholder="ชื่อห้อง/วิชา ใหม่"><button class="btn s" data-a="newc">+ สร้างห้อง</button>':'<input id="jc" placeholder="รหัสเข้าห้อง เช่น MATH3A"><button class="btn s" data-a="joinc">เข้าร่วมห้อง</button>'}</aside>`}
-
+function annBox(c){const t=me.role=='t',L=(S.ann||[]).filter(x=>x.cls==c.id).sort((a,b)=>String(b.at).localeCompare(String(a.at)));if(!L.length&&!t)return'';
+ return`<div class="ai" style="border-left:4px solid var(--wa)"><b>📢 ประกาศ</b>${t?`<div class="row" style="flex-wrap:nowrap;margin-top:6px"><textarea id="an" rows="2" placeholder="พิมพ์ประกาศถึงนักเรียน (วางลิงก์ได้ · พิมพ์สูตรด้วย $x^2$)" style="flex:1;margin:0;min-height:48px"></textarea><button class="btn s" data-a="posta">โพสต์</button></div>`:''}${L.slice(0,5).map(x=>`<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--bd)"><div class="mu">${fd(String(x.at).slice(0,10))}${t?` · <a href="#" data-a="dela2" data-id="${x.id}">ลบ</a>`:''}</div><div style="white-space:pre-wrap">${link(x.text)}</div></div>`).join('')}</div>`}
+function badges(){const as=S.asgs,subs=S.subs.filter(s=>s.name===me.name),on=subs.map(s=>({s,a:as.find(x=>x.id===s.asg)})).filter(x=>x.a),ontime=on.filter(x=>!isLate(x.a,x.s));
+ const seq=on.slice().sort((p,q)=>(p.a.due||'').localeCompare(q.a.due||'')).map(x=>!isLate(x.a,x.s));let best=0,cur=0;seq.forEach(t=>{cur=t?cur+1:0;best=Math.max(best,cur)});
+ const gr=on.filter(x=>has(x.s)),den=gr.reduce((p,x)=>p+ +x.a.max,0),pct=den?gr.reduce((p,x)=>p+ +x.s.score,0)/den*100:0;
+ return[['🌱','ส่งงานแรก',subs.length>=1,'ส่งงานชิ้นแรก'],['⏰','ตรงเวลา 5 งาน',ontime.length>=5,'ส่งตรงเวลา 5 งาน'],['🔥','ติดต่อกัน 3 งาน',best>=3,'ส่งตรงเวลา 3 งานติดกัน'],['💯','คะแนนเต็ม',on.some(x=>has(x.s)&&+x.a.max>0&&+x.s.score>=+x.a.max),'ได้คะแนนเต็มสักงาน'],['🏆','เฉลี่ย 80%+',gr.length>=3&&pct>=80,'คะแนนเฉลี่ย 80% ขึ้นไป (ตรวจแล้ว 3 งานขึ้นไป)'],['📚','ส่งครบทุกงาน',as.length>=3&&as.every(a=>sub(a.id,me.name)),'ส่งครบทุกงานของทุกวิชา']]}
+function stuHome(){const cs=myC(),ids=cs.map(c=>c.id),as=S.asgs.filter(a=>ids.includes(a.cls)),mine=S.subs.filter(s=>s.name===me.name),cl=id=>S.classes.find(c=>c.id==id)||{};
+ const todo=as.filter(a=>!sub(a.id,me.name)&&!(a.mode=='hard'&&over(a))).sort((x,y)=>(x.due||'9999').localeCompare(y.due||'9999')),closed=as.filter(a=>!sub(a.id,me.name)&&a.mode=='hard'&&over(a));
+ const seen=getSeen(),fresh=mine.filter(s=>has(s)&&!seen.includes(s.id)),gr=mine.filter(has),den=gr.reduce((p,s)=>p+ +((as.find(a=>a.id==s.asg)||{}).max||0),0),pct=den?gr.reduce((p,s)=>p+ +s.score,0)/den*100:null;
+ if(fresh.some(s=>{const a=as.find(x=>x.id==s.asg);return a&&+a.max>0&&+s.score>=+a.max})&&!CF){CF=1;setTimeout(confetti,500)}
+ const B=badges();
+ return`<section class="card" style="grid-column:auto"><h3 style="font-size:1.15rem">สวัสดี ${esc(me.name)} 👋</h3>
+ ${fresh.length?`<div class="ai" style="border-left:4px solid var(--ok)"><div class="row"><b>🎉 ครูตรวจงานแล้ว ${fresh.length} งาน</b><button class="btn s o" data-a="seenall">รับทราบ</button></div>${fresh.map(s=>{const a=as.find(x=>x.id==s.asg)||{},c=cl(a.cls);return`<div style="margin-top:6px">${ci(c)} <b>${esc(a.title)}</b> · ${s.score}/${a.max}${s.fb?' · '+esc(s.fb):''}</div>`}).join('')}</div>`:''}
+ <div class="st"><div><b>${mine.length}/${as.length}</b>ส่งแล้ว</div><div><b>${gr.length}</b>ตรวจแล้ว</div><div><b>${pct===null?'-':pct.toFixed(0)+'%'}</b>คะแนนเฉลี่ย</div></div>
+ <h3>📌 งานที่ต้องส่ง (${todo.length})</h3>${todo.map(a=>{const c=cl(a.cls);return`<div class="ai row" style="border-left:5px solid ${cc(c)}"><div><b>${esc(a.title)}</b><div class="mu">${ci(c)} ${esc(c.name||'')} · ส่ง ${fd(a.due)}${quizOf(a).length?' · แบบทดสอบ':''}</div></div><div>${dueChip(a)} <button class="btn s" data-a="gocls" data-id="${a.cls}">ทำงาน</button></div></div>`}).join('')||'<p class="mu">🎉 ไม่มีงานค้างส่ง</p>'}
+ ${closed.length?`<p class="mu">ปิดรับแล้ว (เลยกำหนดและไม่ได้ส่ง): ${closed.map(a=>esc(a.title)).join(', ')}</p>`:''}
+ <h3 style="margin-top:14px">🏅 เหรียญของฉัน</h3><div>${B.map(b=>`<div class="bdg ${b[2]?'':'off'}" title="${esc(b[3])}"><b>${b[0]}</b>${esc(b[1])}</div>`).join('')}</div></section>`}
+function tHome(){const cs=myC(),rows=[];cs.forEach(c=>S.asgs.filter(a=>a.cls==c.id).forEach(a=>{const ss=S.subs.filter(s=>s.asg==a.id),p=ss.filter(s=>!has(s)).length;if(p)rows.push({c,a,p})}));
+ const nm=cs.reduce((p,c)=>p+S.members.filter(m=>m.cls==c.id).length,0);
+ return`<section class="card"><h3 style="font-size:1.15rem">สวัสดี ${esc(me.name)} 👋</h3><div class="st"><div><b>${cs.length}</b>ห้องเรียน</div><div><b>${nm}</b>นักเรียน</div><div><b>${rows.reduce((p,r)=>p+r.p,0)}</b>งานรอตรวจ</div></div>
+ <h3>📥 งานรอตรวจ</h3>${rows.map(r=>`<div class="ai row" style="border-left:5px solid ${cc(r.c)}"><div><b>${esc(r.a.title)}</b><div class="mu">${ci(r.c)} ${esc(r.c.name)}</div></div><div><span class="chip c-wait">รอตรวจ ${r.p}</span> <button class="btn s" data-a="gograde" data-c="${r.c.id}" data-id="${r.a.id}">ตรวจงาน</button></div></div>`).join('')||'<p class="mu">✅ ไม่มีงานค้างตรวจ</p>'}
+ ${cs.length?'':'<p class="mu">เริ่มต้นด้วยการสร้างห้องเรียนทางซ้าย แล้วเพิ่มรายชื่อนักเรียน</p>'}</section>`}
+const palette=c=>v.pal?`<div class="ai"><div class="mu">ไอคอน</div><div>${ICO.map(i=>`<button class="btn s o" style="margin:2px" data-a="seticon" data-i="${i}">${i}</button>`).join('')}</div><div class="mu" style="margin-top:6px">สีประจำห้อง</div><div>${COL.map(k=>`<button data-a="setcol" data-k="${k}" style="width:30px;height:30px;border-radius:50%;border:${cc(c)==k?'3px solid var(--tx)':'2px solid var(--bd)'};background:${k};margin:2px;cursor:pointer"></button>`).join('')}</div></div>`:'';
 function tView(c){const as=S.asgs.filter(a=>a.cls==c.id),ms=S.members.filter(m=>m.cls==c.id);
  if(v.t=='ppl')return pplView(c,ms);
  if(v.t=='sum'&&!v.a)return sumView(c);
- if(v.a){const a=S.asgs.find(x=>x.id==v.a),ss=ms.map(m=>sub(a.id,m.name)),n=ss.filter(Boolean).length,g=ss.filter(has),avg=g.length?(g.reduce((p,s)=>p+ +s.score,0)/g.length).toFixed(1):'-';
-  return`<button class="btn o s" data-a="back">← กลับ</button><h3 style="margin-top:10px">${esc(a.title)}</h3><p class="mu">กำหนดส่ง ${fd(a.due)} · เต็ม ${a.max} คะแนน</p>
-  <div class="st"><div><b>${n}/${ms.length}</b>ส่งแล้ว</div><div><b>${g.length}</b>ตรวจแล้ว</div><div><b>${avg}</b>คะแนนเฉลี่ย</div></div>
-  <div class="tw"><table><tr><th>ชื่อ</th><th>สถานะ</th><th>งานที่ส่ง</th><th>คะแนน</th><th>ความเห็น</th><th></th></tr>${ms.map((m,i)=>{const s=ss[i];return`<tr><td>${esc(m.name)}</td><td>${chip(s)}</td><td>${s?link(s.text)+att(s):'-'}</td>${s?`<td><input type="number" id="sc-${s.id}" min="0" max="${a.max}" value="${has(s)?s.score:''}"></td><td><input id="fb-${s.id}" value="${esc(s.fb)}"></td><td><button class="btn s" data-a="grade" data-id="${s.id}" data-max="${a.max}">บันทึก</button></td>`:'<td>-</td><td>-</td><td></td>'}</tr>`}).join('')}</table></div>`}
- const e=S.asgs.find(x=>x.id==v.e)||{};return`<form class="ai" onsubmit="return false"><h3>${e.id?'แก้ไขงาน':'สั่งงานใหม่'}</h3><input id="at" placeholder="ชื่องาน" value="${esc(e.title)}"><textarea id="ad" placeholder="รายละเอียด / คำสั่ง">${esc(e.desc)}</textarea><div class="row"><label style="flex:1">กำหนดส่ง<input id="adue" type="date" value="${esc(e.due)}"></label><label style="width:110px">คะแนนเต็ม<input id="am" type="number" value="${e.max||10}"></label></div>${e.id?'<button class="btn" data-a="savea">บันทึกการแก้ไข</button> <button class="btn o" data-a="cancela">ยกเลิก</button>':'<button class="btn" data-a="newa">สั่งงาน</button>'}</form>`+
- (as.map(a=>{const n=ms.filter(m=>sub(a.id,m.name)).length;return`<div class="ai row"><div><b>${esc(a.title)}</b><div class="mu">ส่ง ${fd(a.due)} · เต็ม ${a.max}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">ส่งแล้ว ${n}/${ms.length} <button class="btn s" data-a="opena" data-id="${a.id}">ตรวจงาน</button><button class="btn s o" data-a="edita" data-id="${a.id}">แก้ไข</button>${v.del==a.id?`<button class="btn s" style="background:var(--er)" data-a="dela" data-id="${a.id}">ยืนยันลบ</button>`:`<button class="btn s o" data-a="dela" data-id="${a.id}">ลบ</button>`}</div></div>`}).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
-
-function sView(c){const as=S.asgs.filter(a=>a.cls==c.id);
- return`<h3>งานในห้อง ${esc(c.name)}</h3>`+(as.map(a=>{const s=sub(a.id,me.name),late=!s&&a.due&&a.due<new Date().toISOString().slice(0,10);
- return`<div class="ai"><div class="row"><b>${esc(a.title)}</b>${chip(s)}</div><div class="mu">ส่ง ${fd(a.due)}${late?' · <span style="color:var(--er)">เลยกำหนด</span>':''} · เต็ม ${a.max}</div><p>${link(a.desc)}</p>
- ${has(s)?`<p><b>คะแนน ${s.score}/${a.max}</b>${s.fb?'<br>ความเห็นครู: '+esc(s.fb):''}</p><p class="mu">งานที่ส่ง: ${link(s.text)}</p>${att(s)}`:`<textarea id="tx-${a.id}" placeholder="พิมพ์คำตอบ หรือวางลิงก์งาน (Drive, รูปภาพ)">${s?esc(s.text):''}</textarea>${s?att(s):''}<input type="file" id="fl-${a.id}" multiple accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip"><div class="mu">ถ่ายรูปหรือเลือกรูปได้หลายรูป ระบบรวมเป็น PDF ให้อัตโนมัติ (หรือแนบไฟล์เอกสาร 1 ไฟล์ ไม่เกิน 15 MB)</div><div id="pv-${a.id}" class="mu"></div><button class="btn s" data-a="submit" data-id="${a.id}">${s?'ส่งอีกครั้ง':'ส่งงาน'}</button>`}</div>`}).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
-
+ if(v.a){const a=S.asgs.find(x=>x.id==v.a);if(!a){v.a=null;return''}
+  const ss=ms.map(m=>sub(a.id,m.name)),n=ss.filter(Boolean).length,g=ss.filter(has),avg=g.length?(g.reduce((p,s)=>p+ +s.score,0)/g.length).toFixed(1):'-',late=ss.filter(s=>isLate(a,s)).length,miss=ms.filter((m,i)=>!ss[i]),qz=quizOf(a),hasf=ss.some(s=>s&&s.furl);
+  const qsum=s=>{try{const j=JSON.parse(s.text);if(j&&j.r)return'ถูก '+j.r.reduce((p,x)=>p+x,0)+'/'+j.r.length+' ข้อ'}catch(e){}return null};
+  return`<button class="btn o s" data-a="back">← กลับ</button><h3 style="margin-top:10px">${esc(a.title)}</h3><p class="mu">กำหนดส่ง ${fd(a.due)} · เต็ม ${a.max} คะแนน${a.mode=='hard'?' · ปิดรับหลังกำหนด':''}${qz.length?' · แบบทดสอบ '+qz.length+' ข้อ (ตรวจอัตโนมัติ)':''}</p>${a.desc?`<p style="white-space:pre-wrap">${link(a.desc)}</p>`:''}${a.furl?`<p><button class="btn s o" data-a="viewa" data-id="${a.id}">👁 ไฟล์ของโจทย์: ${esc(a.fname||'ไฟล์แนบ')}</button></p>`:''}
+  <div class="st" style="grid-template-columns:repeat(4,1fr)"><div><b>${n}/${ms.length}</b>ส่งแล้ว</div><div><b>${late}</b>ส่งช้า</div><div><b>${g.length}</b>ตรวจแล้ว</div><div><b>${avg}</b>คะแนนเฉลี่ย</div></div>
+  ${miss.length?`<div class="ai"><div class="row"><b>ยังไม่ส่ง (${miss.length})</b><button class="btn s o" data-a="copymiss">📋 คัดลอกรายชื่อ</button></div><div class="mu">${miss.map(m=>esc(m.name)).join(' · ')}</div></div>`:'<p class="mu">✅ ส่งครบทุกคนแล้ว</p>'}
+  ${hasf?'<p><button class="btn s" data-a="viewall">👁 ตรวจทีละคน (เปิดไฟล์ในหน้านี้)</button></p>':''}
+  <div class="tw"><table><tr><th>ชื่อ</th><th>สถานะ</th><th>งานที่ส่ง</th><th>คะแนน</th><th>ความเห็น</th><th></th></tr>${ms.map((m,i)=>{const s=ss[i];return`<tr><td>${esc(m.name)}</td><td>${chipA(a,s)}</td><td>${s?(qsum(s)?esc(qsum(s)):'<span style="white-space:pre-wrap">'+link(s.text)+'</span>')+att(s):'-'}</td>${s?`<td><input type="number" id="sc-${s.id}" min="0" max="${a.max}" value="${has(s)?s.score:''}"></td><td><input id="fb-${s.id}" value="${esc(s.fb)}"></td><td style="white-space:nowrap"><button class="btn s" data-a="grade" data-id="${s.id}" data-max="${a.max}">บันทึก</button> <button class="btn s o" title="ลบงานที่ส่ง ให้นักเรียนส่งใหม่" data-a="reopen" data-id="${s.id}">↺</button></td>`:'<td>-</td><td>-</td><td></td>'}</tr>`}).join('')}</table></div>`}
+ const e=S.asgs.find(x=>x.id==v.e)||{},others=S.classes.filter(x=>x.id!=c.id&&myC().includes(x));
+ return annBox(c)+`<div class="row" style="margin-bottom:6px"><span class="mu">ห้องนี้: ${ci(c)} สี</span><button class="btn s o" data-a="pal">🎨 เปลี่ยนไอคอน/สีห้อง</button></div>${palette(c)}
+ <form class="ai" onsubmit="return false"><h3>${e.id?'แก้ไขงาน':'สั่งงานใหม่'}</h3><input id="at" placeholder="ชื่องาน" value="${esc(e.title)}"><textarea id="ad" placeholder="รายละเอียด / คำสั่ง (พิมพ์สูตรด้วย $x^2$ หรือ $\\frac{a}{b}$ ได้)">${esc(e.desc)}</textarea>
+ <div class="row"><label style="flex:1">กำหนดส่ง<input id="adue" type="date" value="${esc(e.due)}"></label><label style="width:110px">คะแนนเต็ม<input id="am" type="number" value="${e.max||10}"></label><label style="flex:1">การรับงาน<select id="amode"><option value="late" ${e.mode!='hard'?'selected':''}>รับงานช้าได้ (ติดป้ายส่งช้า)</option><option value="hard" ${e.mode=='hard'?'selected':''}>ปิดรับหลังกำหนด</option></select></label></div>
+ <label>แนบไฟล์โจทย์/ใบงาน (ไม่บังคับ)<input type="file" id="af"></label>${e.furl?`<label class="mu"><input type="checkbox" id="adf" style="width:auto;margin-right:6px">ลบไฟล์เดิม (${esc(e.fname||'ไฟล์แนบ')})</label>`:''}
+ <details${e.quiz?' open':''}><summary class="mu">📝 ทำเป็นแบบทดสอบปรนัย (ตรวจอัตโนมัติ)</summary><textarea id="aq" placeholder="เว้นบรรทัดว่างระหว่างข้อ ใส่ * หน้าตัวเลือกที่ถูก&#10;&#10;2+3 เท่ากับเท่าไร&#10;- 4&#10;* 5&#10;- 6&#10;&#10;$3\\times3$ เท่ากับ&#10;- 6&#10;* 9">${esc(quizText(e))}</textarea></details>
+ ${e.id?'<button class="btn" data-a="savea">บันทึกการแก้ไข</button> <button class="btn o" data-a="cancela">ยกเลิก</button>':'<button class="btn" data-a="newa">สั่งงาน</button>'}</form>`+
+ (as.map(a=>{const n=ms.filter(m=>sub(a.id,m.name)).length;return`<div class="ai"><div class="row"><div><b>${esc(a.title)}</b>${quizOf(a).length?' <span class="chip c-ok">แบบทดสอบ</span>':''}${a.furl?' 📎':''}<div class="mu">ส่ง ${fd(a.due)} · เต็ม ${a.max}${a.mode=='hard'?' · ปิดรับหลังกำหนด':''}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">ส่งแล้ว ${n}/${ms.length} <button class="btn s" data-a="opena" data-id="${a.id}">ตรวจงาน</button><button class="btn s o" data-a="edita" data-id="${a.id}">แก้ไข</button>${others.length?`<button class="btn s o" data-a="cpa" data-id="${a.id}">คัดลอก</button>`:''}${v.del==a.id?`<button class="btn s" style="background:var(--er)" data-a="dela" data-id="${a.id}">ยืนยันลบ</button>`:`<button class="btn s o" data-a="dela" data-id="${a.id}">ลบ</button>`}</div></div>${v.cpa==a.id?`<div class="row" style="margin-top:8px"><span class="mu">คัดลอกไปห้อง:</span><select id="cps-${a.id}" style="flex:1;margin:0">${others.map(o=>`<option value="${o.id}">${esc(o.name)}</option>`).join('')}</select><button class="btn s" data-a="docp" data-id="${a.id}">คัดลอก</button></div>`:''}</div>`}).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
+function qRes(a,s){try{const j=JSON.parse(s.text);if(j&&j.r)return'<div>'+j.r.map((x,i)=>'ข้อ '+(i+1)+(x?' ✅':' ❌')).join(' · ')+'</div>'}catch(e){}return''}
+function cardS(a){const s=sub(a.id,me.name),qz=quizOf(a),closed=!s&&a.mode=='hard'&&over(a);
+ let body;
+ if(qz.length)body=s?`<p><b>คะแนน ${has(s)?s.score:'-'}/${a.max}</b>${s.fb?'<br>'+esc(s.fb):''}</p>${qRes(a,s)}`:closed?'<p class="mu">ปิดรับงานแล้ว</p>':qz.map((q,i)=>`<div class="ai"><b>${i+1}.</b> <span style="white-space:pre-wrap">${link(q.q)}</span><div>${q.o.map((t,j)=>`<label style="display:block;margin:4px 0"><input type="radio" name="q-${a.id}-${i}" value="${j}" style="width:auto;margin-right:6px">${esc(t)}</label>`).join('')}</div></div>`).join('')+`<button class="btn s" data-a="qsubmit" data-id="${a.id}">ส่งคำตอบ</button> <span class="mu">ส่งได้ครั้งเดียว</span>`;
+ else if(has(s))body=`<p><b>คะแนน ${s.score}/${a.max}</b>${s.fb?'<br>ความเห็นครู: '+esc(s.fb):''}</p><p class="mu">งานที่ส่ง: ${link(s.text)}</p>${att(s)}`;
+ else if(closed)body='<p class="mu" style="color:var(--er)">ปิดรับงานแล้ว (เลยกำหนด)</p>';
+ else body=`<textarea id="tx-${a.id}" placeholder="พิมพ์คำตอบ หรือวางลิงก์งาน (Drive, รูปภาพ)">${s?esc(s.text):''}</textarea>${s?att(s):''}<input type="file" id="fl-${a.id}" multiple accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip"><div class="mu">ถ่ายรูปหรือเลือกรูปได้หลายรูป ระบบรวมเป็น PDF ให้อัตโนมัติ (หรือแนบไฟล์เอกสาร 1 ไฟล์ ไม่เกิน 15 MB)</div><div id="pv-${a.id}" class="mu"></div><button class="btn s" data-a="submit" data-id="${a.id}">${s?'ส่งอีกครั้ง':'ส่งงาน'}</button>`;
+ return`<div class="ai"><div class="row"><b>${esc(a.title)}</b><span>${chipA(a,s)} ${!s?dueChip(a):''}</span></div><div class="mu">ส่ง ${fd(a.due)}${a.mode=='hard'?' · ปิดรับหลังกำหนด':''} · เต็ม ${a.max}</div>${a.desc?`<p style="white-space:pre-wrap">${link(a.desc)}</p>`:''}${a.furl?`<p><button class="btn s o" data-a="viewa" data-id="${a.id}">👁 ${esc(a.fname||'ไฟล์จากครู')}</button></p>`:''}${body}</div>`}
+function sView(c){const as=S.asgs.filter(a=>a.cls==c.id).sort((x,y)=>{const sx=sub(x.id,me.name)?1:0,sy=sub(y.id,me.name)?1:0;return sx-sy||(x.due||'9999').localeCompare(y.due||'9999')});
+ return annBox(c)+`<h3>งานในห้อง ${esc(c.name)}</h3>`+(as.map(cardS).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
 function render(){$('#who').textContent=me?(me.role=='t'?'👩‍🏫 ':'🎒 ')+me.name:'';$('#outb').hidden=!me;$('#cpb').hidden=!(me&&API);
  if(!me){$('#app').innerHTML=apiP()+login();return}
  if(API&&!loaded){$('#app').innerHTML=skel();return}
  const c=S.classes.find(x=>x.id==v.c&&myC().includes(x));let body;
- if(!c)body='<div class="card"><p class="mu">เลือกห้องเรียนทางซ้าย'+(me.role=='s'?' หรือใส่รหัสห้องที่ครูให้เพื่อเข้าร่วม':'')+'</p></div>';
- else body=`<section class="card"><div class="row"><h3 style="margin:0">${esc(c.name)}</h3>${me.role=='t'?`<span class="chip c-ok">รหัส ${c.code}</span>`:''}</div>${me.role=='t'&&!v.a?`<div class="tabs" style="margin-top:10px"><button class="btn ${v.t=='work'?'':'o'} s" data-a="tab" data-t="work">งาน</button><button class="btn ${v.t=='ppl'?'':'o'} s" data-a="tab" data-t="ppl">นักเรียน</button><button class="btn ${v.t=='sum'?'':'o'} s" data-a="tab" data-t="sum">สรุปคะแนน</button></div>`:'<hr style="border:0;border-top:1px solid var(--bd)">'}${me.role=='t'?tView(c):sView(c)}</section>`;
- $('#app').innerHTML=apiP()+cpP()+side()+body}
-
-document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,d=b.dataset,val=i=>($('#'+i)||{}).value||'';if(a=='rmimg'){e.preventDefault();(pend[d.id]||[]).splice(+d.i,1);pv(d.id);return}
+ if(!c)body=me.role=='t'?tHome():stuHome();
+ else body=`<section class="card" style="border-top:4px solid ${cc(c)}"><div class="row"><h3 style="margin:0">${ci(c)} ${esc(c.name)}</h3>${me.role=='t'?`<span class="chip c-ok">รหัส ${c.code}</span>`:''}</div>${me.role=='t'&&!v.a?`<div class="tabs" style="margin-top:10px"><button class="btn ${v.t=='work'?'':'o'} s" data-a="tab" data-t="work">งาน</button><button class="btn ${v.t=='ppl'?'':'o'} s" data-a="tab" data-t="ppl">นักเรียน</button><button class="btn ${v.t=='sum'?'':'o'} s" data-a="tab" data-t="sum">สรุปคะแนน</button></div>`:'<hr style="border:0;border-top:1px solid var(--bd)">'}${me.role=='t'?tView(c):sView(c)}</section>`;
+ $('#app').innerHTML=apiP()+cpP()+side()+body;mj()}
+async function saveAsg(edit){const o=edit?S.asgs.find(x=>x.id==v.e):null,t=gv('at').trim();if(!t)return toast('ใส่ชื่องานก่อน');
+ const raw=gv('aq').trim(),qs=parseQuiz(raw);if(raw&&!qs.length)return toast('รูปแบบข้อสอบไม่ถูกต้อง: แต่ละข้อต้องมีตัวเลือกอย่างน้อย 2 ข้อ และใส่ * หน้าข้อที่ถูก');
+ let furl=o?o.furl||'':'',fname=o?o.fname||'':'';const f=$('#af')&&$('#af').files[0];if($('#adf')&&$('#adf').checked){furl='';fname=''}
+ if(f){if(f.size>LIM())return toast('ไฟล์ใหญ่เกิน '+(API?'15 MB':'700 KB (โหมดทดลอง)'));toast('กำลังอัปโหลดไฟล์…');try{furl=(await upFile(f)).url;fname=f.name}catch(e){return toast('อัปโหลดไฟล์ไม่สำเร็จ')}}
+ put('asgs',{...(o||{id:uid(),cls:v.c}),title:t,desc:gv('ad'),due:gv('adue'),max:+gv('am')||10,mode:gv('amode')||'late',furl,fname,quiz:qs.length?JSON.stringify(qs):''});
+ v.e=null;toast(edit?'แก้ไขงานแล้ว':'สั่งงานแล้ว'+(qs.length?' (แบบทดสอบ '+qs.length+' ข้อ)':''));render()}
+async function doQuiz(id){const a=S.asgs.find(x=>x.id==id),qs=quizOf(a),ans=qs.map((q,i)=>{const r=document.querySelector('input[name="q-'+id+'-'+i+'"]:checked');return r?+r.value:-1});
+ if(ans.includes(-1))return toast('ตอบให้ครบทุกข้อก่อนส่ง');if(!confirm('ส่งคำตอบ? ส่งแล้วจะแก้ไขไม่ได้'))return;
+ const row={id:uid(),asg:id,name:me.name,text:JSON.stringify({a:ans}),at:nowL(),score:null,fb:'',fname:'',furl:''};
+ if(!API){const r=ans.map((x,i)=>x==qs[i].ans?1:0),c=r.reduce((p,x)=>p+x,0);row.text=JSON.stringify({a:ans,r});row.score=Math.round(c/qs.length*a.max*100)/100;row.fb='ตรวจอัตโนมัติ: ถูก '+c+'/'+qs.length+' ข้อ';put('subs',row);render();toast('ได้ '+row.score+'/'+a.max+' คะแนน');if(c==qs.length)confetti();return}
+ setBusy(1);try{const r=await post({table:'subs',row,op:'up'});if(!r.ok){toast(r.error||'ส่งไม่สำเร็จ');return}await pull();render();const s=sub(id,me.name);if(has(s)){toast('ได้ '+s.score+'/'+a.max+' คะแนน');if(+s.score>=+a.max)confetti()}}catch(e){diag(e)}finally{setBusy(0)}}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;if(b.tagName=='A'&&b.getAttribute('href')=='#')e.preventDefault();const a=b.dataset.a,d=b.dataset,val=i=>($('#'+i)||{}).value||'';
+ if(a=='rmimg'){e.preventDefault();(pend[d.id]||[]).splice(+d.i,1);pv(d.id);return}
  if(a=='theme'){const r=document.documentElement,n=r.dataset.theme=='dark'?'light':'dark';r.dataset.theme=n;try{localStorage.setItem('cr_th',n)}catch(x){}return}
  if(a=='api'){v.api=!v.api;render();return}
  if(a=='saveapi'){API=val('apiu').trim();try{localStorage.setItem('cr_api',API)}catch(x){}v.api=false;toast(API?'เชื่อมชีตแล้ว':'ใช้ข้อมูลในเครื่อง');load();logout();return}
@@ -206,17 +307,38 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
  if(a=='rescsv'){dl([['รหัสนักเรียน','ชื่อ-นามสกุล','รหัสผ่าน'],...(v.res||[]).map(x=>[x.sid||'',x.name,x.pw])],'รหัสผ่านนักเรียน.csv');return}
  if(a=='impx'){impX();return}
  if(a=='tpl'){tpl();return}
+ if(a=='home'){v={c:null,a:null,t:'work'}}
+ if(a=='gocls'){v={c:d.id,a:null,t:'work'}}
+ if(a=='gograde'){v={c:d.c,a:d.id,t:'work'}}
  if(a=='selc'){v={c:d.id,a:null,t:'work'}}
  if(a=='tab'){v.t=d.t;v.e=null;v.del=null}if(a=='opena')v.a=d.id;if(a=='back')v.a=null;
  if(a=='edita'){v.e=d.id;v.del=null}if(a=='cancela')v.e=null;
- if(a=='savea'){const o=S.asgs.find(x=>x.id==v.e),t=val('at').trim();if(!t)return toast('ใส่ชื่องานก่อน');put('asgs',{...o,title:t,desc:val('ad'),due:val('adue'),max:+val('am')||10});v.e=null;toast('แก้ไขงานแล้ว')}
+ if(a=='pal')v.pal=!v.pal;
+ if(a=='seticon'||a=='setcol'){const c=S.classes.find(x=>x.id==v.c);if(c)put('classes',a=='seticon'?{...c,icon:d.i}:{...c,color:d.k})}
+ if(a=='savea'||a=='newa'){saveAsg(a=='savea');return}
  if(a=='dela'){if(v.del!=d.id){v.del=d.id;render();return}S.subs.filter(s=>s.asg==d.id).forEach(s=>put('subs',s,true));put('asgs',S.asgs.find(x=>x.id==d.id),true);v.del=null;toast('ลบงานและงานที่ส่งแล้ว')}
+ if(a=='cpa')v.cpa=v.cpa==d.id?null:d.id;
+ if(a=='docp'){const t=val('cps-'+d.id),o=S.asgs.find(x=>x.id==d.id);if(!t||!o)return;put('asgs',{...o,id:uid(),cls:t});v.cpa=null;toast('คัดลอกงานไปห้อง "'+(S.classes.find(x=>x.id==t)||{}).name+'" แล้ว')}
+ if(a=='posta'){const t=val('an').trim();if(!t)return toast('พิมพ์ประกาศก่อน');put('ann',{id:uid(),cls:v.c,text:t,at:nowL()});toast('โพสต์ประกาศแล้ว')}
+ if(a=='dela2'){const x=(S.ann||[]).find(y=>y.id==d.id);if(x)put('ann',x,true)}
  if(a=='csv'){csv(S.classes.find(x=>x.id==v.c));return}
- if(a=='newc'){const n=val('cn').trim();if(!n)return toast('ใส่ชื่อห้องก่อน');const c={id:uid(),name:n,code:mkCode(),teacher:me.name};put('classes',c);v.c=c.id;toast('สร้างห้องแล้ว รหัส '+c.code)}
+ if(a=='copymiss'){const A=S.asgs.find(x=>x.id==v.a),ms=S.members.filter(m=>m.cls==v.c).filter(m=>!sub(A.id,m.name));copyTxt('ยังไม่ส่ง "'+A.title+'" ('+ms.length+' คน)\n'+ms.map((m,i)=>(i+1)+'. '+m.name).join('\n'));return}
+ if(a=='newc'){const n=val('cn').trim();if(!n)return toast('ใส่ชื่อห้องก่อน');const k=S.classes.length,c={id:uid(),name:n,code:mkCode(),teacher:me.name,color:COL[k%COL.length],icon:ICO[k%ICO.length]};put('classes',c);v.c=c.id;toast('สร้างห้องแล้ว รหัส '+c.code)}
  if(a=='joinc'){if(API){joinApi(val('jc'));return}const c=S.classes.find(x=>x.code==val('jc').trim().toUpperCase());if(!c)return toast('ไม่พบรหัสห้องนี้');if(!S.members.some(m=>m.cls==c.id&&m.name==me.name))put('members',{id:uid(),cls:c.id,name:me.name});v.c=c.id;toast('เข้าร่วมห้องแล้ว')}
- if(a=='newa'){const t=val('at').trim();if(!t)return toast('ใส่ชื่องานก่อน');put('asgs',{id:uid(),cls:v.c,title:t,desc:val('ad'),due:val('adue'),max:+val('am')||10});toast('สั่งงานแล้ว')}
  if(a=='submit'){doSubmit(d.id);return}
+ if(a=='qsubmit'){doQuiz(d.id);return}
+ if(a=='seenall'){setSeen(getSeen().concat(S.subs.filter(s=>s.name===me.name&&has(s)).map(s=>s.id)));CF=0}
  if(a=='grade'){const s=S.subs.find(x=>x.id==d.id),sc=val('sc-'+d.id);if(sc===''||+sc<0||+sc>+d.max)return toast('คะแนนต้องอยู่ระหว่าง 0-'+d.max);put('subs',{...s,score:+sc,fb:val('fb-'+d.id)});toast('บันทึกคะแนนแล้ว')}
+ if(a=='reopen'){if(!confirm('ลบงานที่นักเรียนส่งไว้ เพื่อให้ส่งใหม่?'))return;put('subs',S.subs.find(x=>x.id==d.id),true);toast('ลบงานที่ส่งแล้ว นักเรียนส่งใหม่ได้')}
+ if(a=='view'){const s=S.subs.find(x=>x.id==d.sid),A=S.asgs.find(x=>x.id==(s||{}).asg);if(!s||!A)return;
+  if(me.role=='t'){const L=S.members.filter(m=>m.cls==A.cls).map(m=>sub(A.id,m.name)).filter(x=>x&&x.furl).map(x=>({url:x.furl,name:x.fname,who:x.name,sid:x.id}));vwOpen(L,Math.max(0,L.findIndex(x=>x.sid==s.id)),A)}
+  else vwOpen([{url:s.furl,name:s.fname,who:A.title,sid:s.id}],0,A);return}
+ if(a=='viewa'){const A=S.asgs.find(x=>x.id==d.id);if(A)vwOpen([{url:A.furl,name:A.fname,who:A.title}],0,null);return}
+ if(a=='viewall'){const A=S.asgs.find(x=>x.id==v.a),L=S.members.filter(m=>m.cls==A.cls).map(m=>sub(A.id,m.name)).filter(x=>x&&x.furl).map(x=>({url:x.furl,name:x.fname,who:x.name,sid:x.id}));vwOpen(L,Math.max(0,L.findIndex(x=>!has(S.subs.find(y=>y.id==x.sid)))),A);return}
+ if(a=='vprev'||a=='vnext'){VW.i=(VW.i+(a=='vnext'?1:-1)+VW.list.length)%VW.list.length;vwShow();return}
+ if(a=='vclose'){const el=$('#vw');if(el)el.remove();VW=null;render();return}
+ if(a=='vq'){const f=$('#vfb');if(f)f.value=(f.value?f.value+' ':'')+d.t;return}
+ if(a=='vsave'){const s=S.subs.find(x=>x.id==d.id),A=S.asgs.find(x=>x.id==(s||{}).asg),sc=gv('vsc');if(!s||!A)return;if(sc===''||+sc<0||+sc>+A.max)return toast('คะแนนต้องอยู่ระหว่าง 0-'+A.max);put('subs',{...s,score:+sc,fb:gv('vfb')});toast('บันทึกคะแนนแล้ว');if(VW.i<VW.list.length-1)VW.i++;vwShow();return}
  render()});
 function logout(){me=null;TOK='';loaded=false;try{['cr_me','cr_tok','cr_cache'].forEach(k=>{localStorage.removeItem(k);sessionStorage.removeItem(k)})}catch(x){}v={c:null,a:null,t:'work'};render()}
 async function joinApi(code){try{const r=await(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,op:'join',code:code.trim()})})).json();if(!r.ok)return toast(r.error=='auth'?'เซสชันหมดอายุ':r.error);await pull();v={c:r.cls,a:null,t:'work'};toast('เข้าร่วมห้องแล้ว');render()}catch(e){toast('เชื่อมต่อไม่ได้')}}
@@ -228,4 +350,5 @@ async function doAuth(){const reg=lm=='up',g=i=>($('#'+i)||{}).value||'',n=g('un
   v={c:null,a:null,t:'work'};loaded=false;render();await pull();render()}catch(e){diag(e);loaded=true;render()}}
 document.addEventListener('submit',e=>{if(e.target.id=='lf'){e.preventDefault();doAuth()}});
 load();if(readCache())loaded=true;pull().then(render);render();
+if('serviceWorker' in navigator&&location.protocol=='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
