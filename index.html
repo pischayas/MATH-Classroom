@@ -2,10 +2,11 @@
 <html lang="th"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ห้องเรียนออนไลน์</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="preconnect" href="https://script.google.com"><link rel="preconnect" href="https://script.googleusercontent.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" media="print" onload="this.media='all'">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js" onload="mj()"></script>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#2563eb"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,6 +50,44 @@ a{color:var(--ac)}
 .katex{font-size:1.05em}
 
 .prof{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px;border-radius:14px;border:1px solid var(--bd);background:linear-gradient(135deg,var(--s2),transparent);margin-bottom:8px}.avb{font-size:2.6rem;line-height:1;width:68px;height:68px;border-radius:50%;border:3px solid var(--ac);background:var(--sf);cursor:pointer}.xpb{height:10px;border-radius:6px;background:var(--bd);overflow:hidden;margin:6px 0}.xpb i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ok));transition:width .6s}.flame{text-align:center;font-size:1.6rem;font-weight:700}.flame small{display:block;font-size:.7rem;font-weight:400;opacity:.7}
+
+/* ===== การเคลื่อนไหว ===== */
+html{scroll-behavior:smooth}*{-webkit-tap-highlight-color:transparent}button,[data-a],select,input,textarea{touch-action:manipulation}
+.btn,.ci,.chip,.ai,.bdg,.avb{transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .2s,background-color .2s,border-color .2s,opacity .2s}
+.btn{position:relative;overflow:hidden}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.14)}.btn:active,.ci:active,.avb:active{transform:scale(.96);box-shadow:none}
+.ci:hover{transform:translateX(3px)}.ai:hover{box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.avb:hover{transform:rotate(-6deg) scale(1.07)}
+@media (hover:none){.btn:hover,.ci:hover,.ai:hover,.avb:hover{transform:none;box-shadow:none}}
+.rpl{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:rpl .55s ease-out forwards;pointer-events:none}
+@keyframes rpl{to{transform:scale(1);opacity:0}}
+.enter>*{animation:rise .4s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*60ms)}
+.enter .ai{animation:rise .38s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j,0)*38ms + 120ms)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.enter .bar i,.enter .xpb i{transform-origin:left;animation:grow .9s cubic-bezier(.2,.8,.2,1) both .2s}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.enter .bdg:not(.off){animation:pop .55s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--j,0)*45ms + .25s)}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.flame{animation:flick 1.8s ease-in-out infinite}@keyframes flick{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.07) rotate(-2deg)}}
+details[open]>*:not(summary){animation:rise .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+#vw{animation:fadein .2s ease-out}.vb iframe,.vb img{animation:fadein .35s ease-out}
+#toast{transform:translate(-50%,14px) scale(.96)}#toast.on{transform:translate(-50%,0) scale(1)}
+.busy{pointer-events:none;opacity:.8;padding-right:30px!important}
+.busy::after{content:"";position:absolute;right:9px;top:50%;width:13px;height:13px;margin-top:-7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#upd{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ac);color:#fff;padding:9px 18px;border-radius:22px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:30;cursor:pointer;animation:rise .4s both}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* ===== ตรวจงานบนแท็บเล็ต ===== */
+#vw .vmain{flex:1;min-height:0;display:flex;flex-direction:column}#vw .vb{flex:1;min-height:180px}#vw .vb.col{flex-direction:column;background:#e5e7eb}
+#vw .vp{padding:10px 12px;background:var(--sf);border-top:1px solid var(--bd);overflow:auto;max-height:48vh;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+@media (min-width:820px){#vw .vmain{flex-direction:row}#vw .vp{width:370px;max-height:none;border-top:0;border-left:1px solid var(--bd)}}
+.vp .big{min-height:46px;font-size:1.02rem}.vp .stp{width:56px;min-height:52px;font-size:1.7rem;padding:0;flex:none}.vp #vsc{text-align:center;font-size:1.7rem;font-weight:700;min-height:52px}
+.anb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;background:var(--sf);border-bottom:1px solid var(--bd)}.ncol{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--bd);cursor:pointer;flex:none}
+.anp{flex:1;min-height:0;overflow:auto;padding:6px;-webkit-overflow-scrolling:touch}.anpg{position:relative;margin:8px auto;max-width:980px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.anpg canvas{display:block;width:100%;height:auto}.anpg canvas.ink{position:absolute;left:0;top:0;height:100%;touch-action:none;cursor:crosshair}.anp.sc canvas.ink{pointer-events:none}
+@media (pointer:coarse){input,select,textarea{font-size:16px;min-height:44px}.btn{min-height:40px}.btn.s{min-height:38px}table td,table th{padding:9px 6px}}
 </style></head><body><div id="bar"></div>
 <header><b>🏫 ห้องเรียนออนไลน์</b><span id="who" class="mu" style="color:#fff"></span><button data-a="theme">🌓</button><button data-a="api">⚙️</button><button data-a="cp" id="cpb" hidden>🔑 รหัสผ่าน</button><button data-a="out" id="outb" hidden>ออก</button></header>
 <main id="app"></main><div id="toast"></div>
@@ -57,9 +96,9 @@ const K='classroom_v1',$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>'i'+Math.random().toString(36).slice(2,9);
 const mkCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ',P=A+'23456789';let s=A[Math.random()*A.length|0];for(let i=0;i<4;i++)s+=P[Math.random()*P.length|0];return s};
-const DEFAULT_API='https://script.google.com/macros/s/AKfycbzUGK054I6L9m-H4n-yagzx5c3qu3CAUGabeYJ-onocqsodVGVzC0MFQuL8W1A5UrHFIg/exec';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
+const DEFAULT_API='';// วาง URL ของ Apps Script ที่นี่ก่อนนำขึ้นโฮสต์ นักเรียนจะไม่ต้องตั้งค่าเอง
 let S,me=null,v={c:null,a:null,t:'work'},API='',role='t',TOK='',lm='in',loaded=false;
-const setBusy=n=>{const b=$('#bar');if(b)b.className=n?'on':''};
+let BN=0,BT=0;const setBusy=n=>{if(n)WS++;BN=n?BN+1:Math.max(0,BN-1);const b=$('#bar');if(b)b.className=BN?'on':'';clearTimeout(BT);if(BN)BT=setTimeout(()=>{BN=0;const b2=$('#bar');if(b2)b2.className='';document.querySelectorAll('.busy').forEach(x=>x.classList.remove('busy'))},30000);else document.querySelectorAll('.busy').forEach(x=>x.classList.remove('busy'))};
 function cacheS(){if(!API||!me||!S||S.error)return;try{const x=Object.assign({},S);delete x._dbg;(localStorage.getItem('cr_tok')?localStorage:sessionStorage).setItem('cr_cache',JSON.stringify({u:me.name,s:x}))}catch(e){}}
 function readCache(){if(!API||!me||!TOK)return false;try{const c=JSON.parse(localStorage.getItem('cr_cache')||sessionStorage.getItem('cr_cache')||'null');if(c&&c.u===me.name&&c.s&&c.s.classes){S=c.s;normS();return true}}catch(e){}return false}
 const skel=()=>'<section class="card"><h3>ห้องเรียนของฉัน</h3><div class="sk"></div><div class="sk"></div></section><section class="card"><div class="sk w6"></div><div class="sk"></div><div class="sk"></div><p class="mu">กำลังโหลดห้องเรียน… ครั้งแรกอาจใช้เวลา 5–10 วินาที</p></section>';
@@ -73,8 +112,8 @@ function seed(){const n=['กฤษณะ เป้าเงิน','กิต�
 function load(){if(API){S={classes:[],members:[],asgs:[],subs:[],ann:[],daily:[],dans:[],teams:[]};return}try{S=JSON.parse(localStorage.getItem(K))}catch(e){}if(!S||!S.classes)S=seed();normS()}
 function save(){if(API)return;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('เก็บในเครื่องไม่ได้ (พื้นที่เต็มหรือถูกบล็อก)')}}
 function put(t,row,del){const L=S[t],i=L.findIndex(x=>x.id===row.id);if(del){if(i>=0)L.splice(i,1)}else if(i>=0)L[i]=row;else L.push(row);save();cacheS();
- if(API)fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,table:t,row,op:del?'del':'up'})}).then(r=>r.text()).then(t=>{try{return JSON.parse(t)}catch(e){throw new Error('NOJSON')}}).then(r=>{if(!r.ok&&r.error==='auth'){logout();showErr('เซิร์ฟเวอร์ไม่รับโทเคนล็อกอิน (เหตุผล: '+esc(r.why||'ไม่ระบุ — Code.gs ยังเป็นเวอร์ชันเก่า')+') กรุณาล็อกอินใหม่');return}if(!r.ok){showErr('เซิร์ฟเวอร์ปฏิเสธการบันทึก: '+esc(r.error||'ไม่ทราบสาเหตุ'));toast(r.error=='auth'?'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่':(r.error||'บันทึกไม่สำเร็จ'));pull().then(render)}}).catch(diag)}
-async function pull(){if(!API||!TOK)return;setBusy(1);try{await pull0();cacheS()}finally{loaded=true;setBusy(0)}maybePing().then(c=>{if(c&&!VW)render()});maybeMyid().then(c=>{if(c&&!VW)render()})}
+ if(API){setBusy(1);fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,table:t,row,op:del?'del':'up'})}).then(r=>r.text()).then(t=>{try{return JSON.parse(t)}catch(e){throw new Error('NOJSON')}}).then(r=>{if(!r.ok&&r.error==='auth'){logout();showErr('เซิร์ฟเวอร์ไม่รับโทเคนล็อกอิน (เหตุผล: '+esc(r.why||'ไม่ระบุ — Code.gs ยังเป็นเวอร์ชันเก่า')+') กรุณาล็อกอินใหม่');return}if(!r.ok){showErr('เซิร์ฟเวอร์ปฏิเสธการบันทึก: '+esc(r.error||'ไม่ทราบสาเหตุ'));toast(r.error=='auth'?'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่':(r.error||'บันทึกไม่สำเร็จ'));pull().then(render)}}).catch(diag).finally(()=>setBusy(0))}}
+async function pull(){if(!API||!TOK)return;setBusy(1);try{await pull0();cacheS()}finally{loaded=true;setBusy(0);sched()}maybePing().then(c=>{if(c&&!VW)render()});maybeMyid().then(c=>{if(c&&!VW)render()})}
 async function pull0(){try{const r=await(await fetch(API+'?token='+encodeURIComponent(TOK)+'&_='+Date.now(),{cache:'no-store'})).json();if(r.error==='auth'){logout();showErr('เซิร์ฟเวอร์ไม่รับโทเคนล็อกอิน (เหตุผล: '+esc(r.why||'ไม่ระบุ — Code.gs ยังเป็นเวอร์ชันเก่า')+') กรุณาล็อกอินใหม่');return}S=r;normS();const D=r._dbg;if(D&&(D.nClasses||D.orphans))showErr('ไม่พบห้องของ <b>'+esc(D.user)+'</b> · ในชีต classes มี '+D.nClasses+' ห้อง'+(D.teachers.length?' ของครู: '+D.teachers.map(esc).join(', '):'')+' · มี '+D.orphans+' รหัสห้องใน members ที่ไม่มีในชีต classes<br>(ถ่ายภาพข้อความนี้ส่งให้ผู้ช่วยได้)')}catch(e){diag(e)}}
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2400)}
 const has=s=>s&&s.score!==null&&s.score!==''&&s.score!==undefined;
@@ -85,7 +124,7 @@ const fd=d=>d?new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short
 const link=t=>esc(t).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
 const nmz=s=>String(s==null?'':s).normalize('NFC').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().toLowerCase();
 const myC=()=>me.role==='t'?S.classes.filter(c=>nmz(c.teacher)===nmz(me.name)):S.classes.filter(c=>S.members.some(m=>m.cls===c.id&&m.name===me.name));
-const att=s=>s&&s.furl?`<div><a href="${esc(s.furl)}" target="_blank" rel="noopener">📎 ${esc(s.fname||'ไฟล์แนบ')}</a> <button class="btn s o" data-a="view" data-sid="${s.id}">👁 ดูไฟล์</button></div>`:'';
+const att=s=>s&&(s.furl||s.rfurl)?`<div>${s.furl?`<a href="${esc(s.furl)}" target="_blank" rel="noopener">📎 ${esc(s.fname||'ไฟล์แนบ')}</a> <button class="btn s o" data-a="view" data-sid="${s.id}">👁 ดูไฟล์</button>`:''} ${s.rfurl?`<button class="btn s" data-a="viewr" data-sid="${s.id}">📝 ใบตรวจจากครู</button>`:''}</div>`:'';
 const apiP=()=>v.api?`<div class="card" style="grid-column:1/-1"><h3>เชื่อม Google Sheets</h3><input id="apiu" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(API)}"><button class="btn s" data-a="saveapi">บันทึก</button> <span class="mu">เว้นว่าง = ใช้ข้อมูลในเครื่อง</span></div>`:'';
 const p2=n=>String(n).padStart(2,'0');
 const localDate=()=>{const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())};
@@ -138,7 +177,7 @@ function xpCalc(){const AS=S.asgs.filter(a=>!isPrac(a));let xp=0;
  S.subs.filter(s=>s.name===me.name).forEach(s=>{const a=AS.find(x=>x.id===s.asg);if(!a)return;xp+=10;if(!isLate(a,s))xp+=5;if(has(s)&&+a.max>0){const f=+s.score/+a.max;xp+=Math.round(f*20)+(f>=1?10:0)}xp+=2*Array.from(s.rx||'').length});
  xp+=badges().filter(b=>b[2]).length*25;xp+=new Set((S.dans||[]).filter(x=>String(x.ok)=='1').map(x=>String(x.daily))).size*15;xp+=weeksDone()*30;xp+=((S.me||{}).best||0)*3;return xp}
 function profCard(){const xp=xpCalc(),lv=lvOf(xp),b=40*(lv-1)**2,n=40*lv*lv,pct=Math.min(100,(xp-b)/(n-b)*100),m=S.me||{},st=streakNow(),tm=S.members.filter(x=>x.team).map(x=>({c:S.classes.find(k=>k.id==x.cls),t:team(x.team)})).filter(x=>x.t&&x.c);
- return`<div class="prof"><button class="avb" data-a="avp" title="เปลี่ยนอวตาร">${m.av||'🙂'}</button><div style="flex:1;min-width:150px"><div><b>${esc(me.name)}</b> <span class="chip c-ok">Lv ${lv}</span> ${tm.map(x=>`<span class="chip" style="background:${x.t.c};color:#fff">${x.t.e} ${esc(x.c.name)}</span>`).join(' ')}</div><div class="xpb"><i style="width:${pct}%"></i></div><div style="opacity:.7;font-size:.8rem">${xp} XP · อีก ${n-xp} XP ถึง Lv ${lv+1}</div></div><div class="flame">${st>=3?'🔥':'✨'} ${st}<small>วันติดต่อกัน${m.best?' · สูงสุด '+m.best:''}</small></div></div><div class="ai">💬 ${esc(msgOf(st))}</div>${v.avp?`<div class="ai"><b>เลือกอวตาร</b> <span style="opacity:.7;font-size:.8rem">เลื่อนระดับเพื่อปลดล็อกตัวใหม่</span><div>${AVT.map(([e,l])=>l<=lv?`<button class="btn s o" style="font-size:1.5rem;margin:3px" data-a="setav" data-e="${e}">${e}</button>`:`<span class="bdg off" style="width:64px" title="ปลดล็อกที่ Lv ${l}"><b>${e}</b>Lv ${l}</span>`).join('')}</div></div>`:''}`}
+ return`<div class="prof"><button class="avb" data-a="avp" title="เปลี่ยนอวตาร">${m.av||'🙂'}</button><div style="flex:1;min-width:150px"><div><b>${esc(me.name)}</b> <span class="chip c-ok">Lv ${lv}</span> ${tm.map(x=>`<span class="chip" style="background:${x.t.c};color:#fff">${x.t.e} ${esc(x.c.name)}</span>`).join(' ')}</div><div class="xpb"><i style="width:${pct}%"></i></div><div style="opacity:.7;font-size:.8rem"><b class="xpn">${xp}</b> XP · อีก ${n-xp} XP ถึง Lv ${lv+1}</div></div><div class="flame">${st>=3?'🔥':'✨'} ${st}<small>วันติดต่อกัน${m.best?' · สูงสุด '+m.best:''}</small></div></div><div class="ai">💬 ${esc(msgOf(st))}</div>${v.avp?`<div class="ai"><b>เลือกอวตาร</b> <span style="opacity:.7;font-size:.8rem">เลื่อนระดับเพื่อปลดล็อกตัวใหม่</span><div>${AVT.map(([e,l])=>l<=lv?`<button class="btn s o" style="font-size:1.5rem;margin:3px" data-a="setav" data-e="${e}">${e}</button>`:`<span class="bdg off" style="width:64px" title="ปลดล็อกที่ Lv ${l}"><b>${e}</b>Lv ${l}</span>`).join('')}</div></div>`:''}`}
 function missionCard(){const M=weekMissions(wkStart(tdy())),all=M.every(m=>m.done),wd=weeksDone();
  return`<div class="ai"><div class="row"><b>🗓️ ภารกิจประจำสัปดาห์</b><span class="mu">${all?'🎖️ ครบแล้ว! +30 XP':'ทำครบทุกข้อได้ 🎖️ +30 XP'}${wd?' · สะสม '+wd+' สัปดาห์':''}</span></div>${M.map(m=>`<div style="margin-top:8px">${m.done?'✅':'⬜'} ${esc(m.t)}<div class="bar"><i style="width:${Math.min(100,m.have/m.need*100)}%;${m.done?'background:var(--ok)':''}"></i><b>${Math.min(m.have,m.need)}/${m.need}</b></div></div>`).join('')}</div>`}
 function dailyCard(d){const c=S.classes.find(x=>x.id==d.cls)||{},my=(S.dans||[]).filter(x=>String(x.daily)==String(d.id)),solved=my.some(x=>String(x.ok)=='1'),bad=my.filter(x=>String(x.ok)!='1').length;
@@ -175,7 +214,7 @@ function sumView(c){const d=sumData(c);if(!d.as.length)return'<p class="mu">ย�
 function csv(c){const d=sumData(c);const L=[['รหัสนักเรียน','ชื่อ',...d.as.map(a=>a.title+' /'+a.max),'รวม /'+d.tm,'%','เกรด']].concat(d.rows.map(r=>[r.sid,r.n,...r.sc.map(x=>x===null?'':x),r.tot,r.pct.toFixed(0),r.g]));
  const t='\ufeff'+L.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='สรุปคะแนน_'+c.name+'.csv';a.click()}
-const VB={};let VW=null;
+const VB={};let VW=null,AN=null;
 const FREAD=/\.(pdf|png|jpe?g|gif|webp)$/i;
 async function vwSrc(it){const u=it.url;if(VB[u])return VB[u];let r=null;
  try{let blob=null;if(/^data:/.test(u))blob=await(await fetch(u)).blob();
@@ -183,19 +222,105 @@ async function vwSrc(it){const u=it.url;if(VB[u])return VB[u];let r=null;
   if(blob)r={src:URL.createObjectURL(blob),type:/^image\//.test(blob.type)?'img':'doc'}}catch(e){}
  if(!r){const m=u.match(/\/d\/([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);r={src:m&&/google\.com/.test(u)?'https://drive.google.com/file/d/'+m[1]+'/preview':u,type:'doc'}}
  return VB[u]=r}
-function vgrade(it){const s=S.subs.find(x=>x.id==it.sid),A=S.asgs.find(x=>x.id==(s||{}).asg);if(!s||!A)return'';
- return`<div class="vg"><span>คะแนน</span><input id="vsc" type="number" min="0" max="${A.max}" value="${has(s)?s.score:''}" style="width:80px;margin:0"><span class="mu">/ ${A.max}</span><input id="vfb" value="${esc(s.fb)}" placeholder="ความเห็น" style="flex:1;min-width:140px;margin:0"><button class="btn s o" data-a="vq" data-t="เยี่ยมมาก">เยี่ยมมาก</button><button class="btn s o" data-a="vq" data-t="ขาดวิธีทำ">ขาดวิธีทำ</button><button class="btn s o" data-a="vq" data-t="ตรวจคำตอบอีกครั้ง">ตรวจอีกครั้ง</button><span>${REACTS.map(e=>`<button class="btn s o" style="padding:2px 6px;${(s.rx||'').includes(e)?'background:var(--ac);':''}" data-a="rx" data-id="${s.id}" data-e="${e}">${e}</button>`).join('')}</span><button class="btn s" data-a="vsave" data-id="${s.id}">บันทึก${VW.i<VW.list.length-1?' › ถัดไป':''}</button></div>`}
+const stepOf=A=>+A.max<=10?.5:1;
+function vgrade(it){const s=S.subs.find(x=>x.id==it.sid),A=S.asgs.find(x=>x.id==(s||{}).asg);if(!s||!A)return'';const mx=+A.max,SR=window.SpeechRecognition||window.webkitSpeechRecognition,last=VW.i>=VW.list.length-1;
+ const Q5=[['0',0],['½',mx/2],['80%',mx*.8],['เต็ม',mx]];
+ return`<div class="vp"><div class="row"><b>${esc(it.who)}</b>${has(s)?'<span class="chip c-ok">ตรวจแล้ว</span>':'<span class="chip c-wait">รอตรวจ</span>'}</div>
+ <div class="mu" style="margin-top:6px">คะแนน (เต็ม ${mx})</div><div class="row" style="flex-wrap:nowrap;gap:6px;margin:4px 0"><button class="btn o stp" data-a="vstep" data-d="-${stepOf(A)}">−</button><input id="vsc" type="number" inputmode="decimal" min="0" max="${mx}" step="${stepOf(A)}" value="${has(s)?s.score:''}" style="margin:0"><button class="btn o stp" data-a="vstep" data-d="${stepOf(A)}">+</button></div>
+ <div class="row" style="gap:6px">${Q5.map(q=>`<button class="btn o s big" style="flex:1" data-a="vquick" data-v="${+q[1].toFixed(2)}">${q[0]}</button>`).join('')}</div>
+ <div class="mu" style="margin-top:8px">ความเห็น</div><textarea id="vfb" rows="3" style="margin:4px 0" placeholder="พิมพ์ พูด หรือแตะข้อความสำเร็จรูป">${esc(s.fb)}</textarea>
+ <div style="display:flex;flex-wrap:wrap;gap:4px">${['เยี่ยมมาก','ขาดวิธีทำ','ตรวจคำตอบอีกครั้ง','ลายมือไม่ชัด','ถูกต้อง'].map(t=>`<button class="btn o s" data-a="vq" data-t="${t}">${t}</button>`).join('')}${SR?'<button class="btn o s" data-a="vmic">🎤 พูด</button>':''}</div>
+ <div style="margin-top:8px">${REACTS.map(e=>`<button class="btn s o" style="padding:2px 8px;${(s.rx||'').includes(e)?'background:var(--ac);':''}" data-a="rx" data-id="${s.id}" data-e="${e}">${e}</button>`).join('')}</div>
+ ${s.rfurl?`<div class="ai" style="margin-top:8px">📝 มีใบตรวจแล้ว <button class="btn s o" data-a="viewr" data-sid="${s.id}">👁 ดู</button> <button class="btn s o" data-a="vrfdel" data-id="${s.id}">ลบ</button></div>`:''}
+ ${API&&FREAD.test(it.name||'')?'<button class="btn o big" style="width:100%;margin-top:8px" data-a="nt-start">✍️ เขียนตรวจบนงาน (ปากกา/นิ้ว)</button>':''}
+ <div class="row" style="margin-top:10px;flex-wrap:nowrap;gap:6px"><button class="btn o big" style="flex:1" data-a="vprev">‹</button><button class="btn big" style="flex:3" data-a="vsave" data-id="${s.id}">บันทึก${last?'':' › ถัดไป'}</button><button class="btn o big" style="flex:1" data-a="vnext">›</button></div></div>`}
 async function vwShow(){let el=$('#vw');if(!el){el=document.createElement('div');el.id='vw';document.body.appendChild(el)}
- const it=VW.list[VW.i],n=VW.list.length;
- el.innerHTML=`<div class="vh"><b>${esc(it.who||it.name||'')}</b><span class="mu">${esc(it.name||'')}${n>1?' · '+(VW.i+1)+'/'+n:''}</span><span class="vs"></span>${n>1?'<button class="btn s o" data-a="vprev">‹ ก่อนหน้า</button><button class="btn s o" data-a="vnext">ถัดไป ›</button>':''}<a class="btn s o" href="${esc(it.url.startsWith('data:')?'#':it.url)}" target="_blank" rel="noopener">เปิดแท็บใหม่</a><button class="btn s" data-a="vclose">✕ ปิด</button></div><div class="vb" id="vb"><p style="padding:20px;color:#fff">กำลังโหลดไฟล์…</p></div>${me&&me.role=='t'&&it.sid?vgrade(it):''}`;
- const my=VW.i,u=await vwSrc(it);if(!VW||VW.i!==my)return;const vb=$('#vb');if(!vb)return;
+ const it=VW.list[VW.i],n=VW.list.length,isT=me&&me.role=='t'&&it.sid,done=VW.list.filter(x=>x.sid&&has(S.subs.find(y=>y.id==x.sid))).length;
+ el.innerHTML=`<div class="vh"><b>${esc(it.who||it.name||'')}</b><span class="mu">${esc(it.name||'')}${n>1?' · '+(VW.i+1)+'/'+n:''}${isT?' · ตรวจแล้ว '+done+'/'+n:''}</span><span class="vs"></span>${n>1&&isT?`<select data-a="vjump" style="width:auto;margin:0;max-width:150px">${VW.list.map((x,i)=>`<option value="${i}" ${i==VW.i?'selected':''}>${has(S.subs.find(y=>y.id==x.sid))?'✅':'⬜'} ${esc(x.who)}</option>`).join('')}</select>`:''}<a class="btn s o" href="${esc(it.url.startsWith('data:')?'#':it.url)}" target="_blank" rel="noopener">เปิดแท็บใหม่</a><button class="btn s" data-a="vclose">✕ ปิด</button></div><div class="vmain"><div class="vb" id="vb"><p style="padding:20px;color:#fff">กำลังโหลดไฟล์…</p></div>${isT?vgrade(it):''}</div>`;
+ AN=null;const my=VW.i,u=await vwSrc(it);if(!VW||VW.i!==my||AN)return;const vb=$('#vb');if(!vb)return;
  vb.innerHTML=u.type=='img'?`<img src="${u.src}" style="max-width:100%;max-height:100%;margin:auto;display:block;object-fit:contain">`:`<iframe src="${u.src}" style="border:0;width:100%;height:100%;background:#fff"></iframe>`}
 function vwOpen(list,i,a){if(!list.length)return toast('ไม่มีไฟล์ให้เปิด');VW={list,i,a};vwShow()}
-document.addEventListener('keydown',e=>{if(e.key=='Escape'&&VW){const el=$('#vw');if(el)el.remove();VW=null}});
+function vwClose(){const el=$('#vw');if(el)el.remove();VW=null;AN=null;if(PEND)applyRender();else render()}
+function vwSave(){const s=S.subs.find(x=>x.id==VW.list[VW.i].sid),A=S.asgs.find(x=>x.id==(s||{}).asg),sc=gv('vsc');if(!s||!A)return;if(sc===''||+sc<0||+sc>+A.max)return toast('คะแนนต้องอยู่ระหว่าง 0-'+A.max);
+ put('subs',{...s,score:+sc,fb:gv('vfb')});toast('✅ บันทึกคะแนนแล้ว');if(VW.i<VW.list.length-1)VW.i++;vwShow()}
+function vwMic(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return toast('เบราว์เซอร์นี้ไม่รองรับการพูด');const r=new R();r.lang='th-TH';r.onresult=e=>{const t=e.results[0][0].transcript,f=$('#vfb');if(f)f.value=(f.value?f.value+' ':'')+t};r.onerror=()=>toast('ฟังไม่สำเร็จ ลองใหม่');r.start();toast('🎤 พูดได้เลย…')}
+document.addEventListener('keydown',e=>{if(!VW)return;const t=e.target&&e.target.tagName,inp=/^(INPUT|TEXTAREA|SELECT)$/.test(t);
+ if(e.key=='Escape'){vwClose();return}
+ if(e.key=='Enter'&&(e.ctrlKey||e.metaKey)&&me&&me.role=='t'){vwSave();return}
+ if(!inp&&!AN&&(e.key=='ArrowRight'||e.key=='ArrowLeft')){VW.i=(VW.i+(e.key=='ArrowRight'?1:-1)+VW.list.length)%VW.list.length;vwShow()}});
+// ---- เขียนตรวจบนงานด้วยปากกา/นิ้ว (รูปและ PDF) แล้วบันทึกเป็น PDF ใบตรวจ ----
+const PDFJS='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+async function loadPdfJs(){if(window.pdfjsLib)return;await new Promise((ok,no)=>{const s=document.createElement('script');s.src=PDFJS+'pdf.min.js';s.onload=ok;s.onerror=()=>no(new Error('pdfjs'));document.head.appendChild(s)});pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+'pdf.worker.min.js';try{const t=await(await fetch(PDFJS+'pdf.worker.min.js')).text();pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([t],{type:'text/javascript'}))}catch(e){}}
+const INKC=['#dc2626','#2563eb','#16a34a','#111827'];
+function inkDraw(p,from){const c=p.ink,x=c.getContext('2d');x.lineCap='round';x.lineJoin='round';
+ if(from===undefined){x.clearRect(0,0,c.width,c.height);p.strokes.forEach(s=>inkDraw1(x,s,c.width,0))}}
+function inkDraw1(x,s,W,from){x.strokeStyle=s.c;x.lineWidth=s.w*W/1000;x.lineCap='round';x.lineJoin='round';const P=s.p;x.beginPath();if(P.length==1){x.arc(P[0][0],P[0][1],x.lineWidth/2,0,7);x.fillStyle=s.c;x.fill();return}for(let i=Math.max(0,from-1);i<P.length;i++){if(i==Math.max(0,from-1))x.moveTo(P[i][0],P[i][1]);else x.lineTo(P[i][0],P[i][1])}x.stroke()}
+function inkPt(e,c){const r=c.getBoundingClientRect(),sx=c.width/(r.width||c.width),sy=c.height/(r.height||c.height);return[(e.clientX-r.left)*sx,(e.clientY-r.top)*sy]}
+function annBind(p){const c=p.ink;let cur=null;
+ c.addEventListener('pointerdown',e=>{if(AN.mode!='draw')return;if(e.pointerType=='pen')AN.pen=true;if(AN.pen&&e.pointerType=='touch')return;e.preventDefault();try{c.setPointerCapture(e.pointerId)}catch(x){}
+  const pt=inkPt(e,c);if(AN.eraser){annErase(p,pt);cur='erase';return}
+  cur={c:AN.color,w:AN.w*(e.pointerType=='pen'&&e.pressure?.4+e.pressure*1.2:1),p:[pt]};p.strokes.push(cur);const x=c.getContext('2d');inkDraw1(x,cur,c.width,0)});
+ c.addEventListener('pointermove',e=>{if(!cur)return;const pt=inkPt(e,c);if(cur=='erase'){annErase(p,pt);return}const ev=(e.getCoalescedEvents&&e.getCoalescedEvents())||[e],x=c.getContext('2d');ev.forEach(q=>{const P=cur.p;P.push(inkPt(q,c));inkDraw1(x,cur,c.width,P.length-1)})});
+ const end=()=>{if(cur&&cur!='erase')AN.hist.push({p,s:cur});cur=null};c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end)}
+function annErase(p,pt){const r=AN.w*5*p.ink.width/1000,n=p.strokes.length;p.strokes=p.strokes.filter(s=>!s.p.some(q=>Math.hypot(q[0]-pt[0],q[1]-pt[1])<r));if(p.strokes.length!=n){AN.hist=AN.hist.filter(h=>p.strokes.includes(h.s)||h.p!==p);inkDraw(p)}}
+const loadImg2=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('img'));i.src=src});
+async function annStart(){const it=VW.list[VW.i],u=await vwSrc(it);if(!u||!/^blob:/.test(u.src))return toast('เขียนตรวจได้เฉพาะไฟล์ PDF/รูปที่โหลดแสดงในหน้านี้ได้ (ลองเปิดไฟล์ให้แสดงก่อน)');
+ toast('กำลังเตรียมกระดาน…');const vb=$('#vb'),pages=[];
+ try{if(u.type=='img'){const im=await loadImg2(u.src),sc=Math.min(1,1600/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);pages.push({base:c})}
+  else{await loadPdfJs();const buf=await(await fetch(u.src)).arrayBuffer(),pdf=await pdfjsLib.getDocument({data:buf}).promise;for(let n=1;n<=Math.min(pdf.numPages,12);n++){const pg=await pdf.getPage(n),v0=pg.getViewport({scale:1}),vp=pg.getViewport({scale:Math.min(2,1400/v0.width)}),c=document.createElement('canvas');c.width=Math.round(vp.width);c.height=Math.round(vp.height);await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;pages.push({base:c})}}}
+ catch(e){return toast('เปิดกระดานไม่สำเร็จ ลองใหม่อีกครั้ง')}
+ AN={pages,color:INKC[0],w:3,eraser:false,mode:'draw',hist:[],pen:false};vb.classList.add('col');
+ vb.innerHTML=`<div class="anb">${INKC.map((k,i)=>`<button data-a="nt-col" data-k="${k}" class="ncol" style="background:${k}" title="สี"></button>`).join('')}<button class="btn s o" data-a="nt-w" data-w="2.5">เส้นบาง</button><button class="btn s o" data-a="nt-w" data-w="6">เส้นหนา</button><button class="btn s o" data-a="nt-er">🧽 ยางลบ</button><button class="btn s o" data-a="nt-undo">↶ ย้อน</button><button class="btn s o" data-a="nt-clr">ล้าง</button><button class="btn s o" data-a="nt-mode" id="ntm">✍️ โหมดเขียน</button><span class="vs"></span><button class="btn s" data-a="nt-save">💾 บันทึกใบตรวจ</button><button class="btn s o" data-a="nt-x">ยกเลิก</button></div><div class="anp" id="anp"></div>`;
+ const box=$('#anp');pages.forEach(p=>{p.strokes=[];const w=document.createElement('div');w.className='anpg';p.base.className='base';const ink=document.createElement('canvas');ink.className='ink';ink.width=p.base.width;ink.height=p.base.height;p.ink=ink;w.appendChild(p.base);w.appendChild(ink);box.appendChild(w);annBind(p)});annUi()}
+function annUi(){if(!AN)return;document.querySelectorAll('.ncol').forEach(b=>b.style.outline=b.dataset.k==AN.color&&!AN.eraser?'3px solid var(--ac)':'none');const m=$('#ntm'),box=$('#anp');if(m)m.textContent=AN.mode=='draw'?'✍️ โหมดเขียน':'👆 โหมดเลื่อน';if(box)box.classList.toggle('sc',AN.mode!='draw');document.querySelectorAll('[data-a="nt-er"]').forEach(b=>b.style.background=AN.eraser?'var(--ac)':'');}
+async function annSave(){const it=VW.list[VW.i],s=S.subs.find(x=>x.id==it.sid),J=window.jspdf&&window.jspdf.jsPDF;if(!s)return;if(!J)return toast('โหลดตัวสร้าง PDF ไม่ได้ (ต้องมีอินเทอร์เน็ต)');if(!AN.pages.some(p=>p.strokes.length))return toast('ยังไม่ได้เขียนอะไรเลย');
+ const sc=gv('vsc'),fb=gv('vfb'),keep=has(s)?s.score:'';setBusy(1);
+ try{let pdf=null;AN.pages.forEach((p,i)=>{const c=document.createElement('canvas');c.width=p.base.width;c.height=p.base.height;const x=c.getContext('2d');x.drawImage(p.base,0,0);x.drawImage(p.ink,0,0);const h=210*c.height/c.width;if(!pdf)pdf=new J({unit:'mm',format:[210,h],orientation:h>210?'p':'l',compress:true});else pdf.addPage([210,h],h>210?'p':'l');pdf.addImage(c.toDataURL('image/jpeg',.82),'JPEG',0,0,210,h)});
+  const f=new File([pdf.output('blob')],'ตรวจแล้ว-'+it.who+'.pdf',{type:'application/pdf'}),r=await upFile(f);
+  put('subs',{...s,score:sc!==''&&+sc>=0?+sc:keep,fb:fb,rfurl:r.url,rfname:f.name});toast('✅ บันทึกใบตรวจแล้ว นักเรียนจะเห็นไฟล์นี้');AN=null;vwShow()}
+ catch(e){toast('บันทึกใบตรวจไม่สำเร็จ ลองใหม่')}finally{setBusy(0)}}
+function ntAct(a,d){if(a=='nt-start'){annStart();return}if(!AN)return;
+ if(a=='nt-col'){AN.color=d.k;AN.eraser=false}
+ else if(a=='nt-w')AN.w=+d.w;
+ else if(a=='nt-er')AN.eraser=!AN.eraser;
+ else if(a=='nt-undo'){const h=AN.hist.pop();if(h){h.p.strokes=h.p.strokes.filter(s=>s!==h.s);inkDraw(h.p)}}
+ else if(a=='nt-clr'){if(!confirm('ล้างลายเส้นทั้งหมด?'))return;AN.hist=[];AN.pages.forEach(p=>{p.strokes=[];inkDraw(p)})}
+ else if(a=='nt-mode')AN.mode=AN.mode=='draw'?'scroll':'draw';
+ else if(a=='nt-save'){annSave();return}
+ else if(a=='nt-x'){if(AN.hist.length&&!confirm('ยกเลิกลายเส้นที่เขียนไว้?'))return;AN=null;vwShow();return}
+ annUi()}
+
+// ---- อัปเดตอัตโนมัติ (polling เบาๆ): ถามเลขเวอร์ชัน ถ้าไม่เปลี่ยนเซิร์ฟเวอร์ตอบสั้นๆ ----
+let PT=0,POLLING=false,PEND=false,LASTACT=Date.now(),WS=0;
+const pollMs=()=>{const idle=Date.now()-LASTACT>120000;return(window.__poll||(idle?60000:15000))*(window.__poll?1:.85+Math.random()*.3)};
+function sched(){clearTimeout(PT);if(!API||!me||!TOK)return;PT=setTimeout(poll,pollMs())}
+const typing=()=>{const a=document.activeElement,app=$('#app');return!!(a&&app&&app.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&!/^(checkbox|radio|button|file|submit)$/.test(a.type||''))};
+function snapForm(){const o={};document.querySelectorAll('#app input[id],#app textarea[id],#app select[id]').forEach(e=>{if(e.type=='file')return;if(e.type=='checkbox'){if(e.checked!==e.defaultChecked)o[e.id]=e.checked}else if(e.value!==e.defaultValue)o[e.id]=e.value});return o}
+function unsnapForm(o){Object.keys(o).forEach(id=>{const e=document.getElementById(id);if(!e||e.type=='file')return;if(e.type=='checkbox')e.checked=o[id];else e.value=o[id]})}
+function applyRender(){if(VW||typing()){PEND=true;return}PEND=false;const sn=snapForm(),y=window.scrollY;render();unsnapForm(sn);window.scrollTo(0,y)}
+function notifyDiff(o,n){if(!o||!n||!me)return;const msgs=[];
+ if(me.role=='s'){const oa=new Set((o.asgs||[]).map(a=>a.id)),na=(n.asgs||[]).filter(a=>!oa.has(a.id));if(na.length)msgs.push('📌 งานใหม่: '+na.slice(0,2).map(a=>a.title).join(', ')+(na.length>2?' …':''));
+  const og=new Set((o.subs||[]).filter(has).map(s=>s.id));if((n.subs||[]).some(s=>has(s)&&!og.has(s.id)))msgs.push('🎉 ครูตรวจงานแล้ว');
+  const oan=new Set((o.ann||[]).map(x=>x.id));if((n.ann||[]).some(x=>!oan.has(x.id)))msgs.push('📢 ประกาศใหม่');
+  const od=new Set((o.daily||[]).map(d=>d.id));if((n.daily||[]).some(d=>!od.has(d.id)))msgs.push('🎯 โจทย์ท้าทายใหม่')}
+ else{const om={};(o.subs||[]).forEach(s=>{om[s.id]=s.at});const ns=(n.subs||[]).filter(s=>om[s.id]===undefined||om[s.id]!==s.at);if(ns.length)msgs.push('📥 มีงานส่งใหม่ '+ns.length+' งาน ('+ns.slice(0,2).map(s=>s.name).join(', ')+(ns.length>2?' …':'')+')')}
+ if(msgs.length){toast(msgs.join(' · '));try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}}return msgs.length}
+async function poll(){if(!API||!me||!TOK){return}
+ if(document.hidden||BN>0||POLLING){sched();return}
+ POLLING=true;const ws=WS;
+ try{const r=await(await fetch(API+'?token='+encodeURIComponent(TOK)+'&since='+encodeURIComponent((S&&S.ver)||'')+'&_='+Date.now(),{cache:'no-store'})).json();
+  if(r.error==='auth'){logout();showErr('เซสชันหมดอายุ กรุณาล็อกอินใหม่');return}
+  if(!r.same&&r.classes&&WS===ws&&BN===0){const old=S;S=r;normS();cacheS();notifyDiff(old,S);applyRender()}}
+ catch(e){}finally{POLLING=false;sched()}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){LASTACT=Date.now();clearTimeout(PT);PT=setTimeout(poll,400)}});
+window.addEventListener('online',()=>{clearTimeout(PT);PT=setTimeout(poll,400)});
+['pointerdown','keydown','touchstart'].forEach(t=>document.addEventListener(t,()=>{LASTACT=Date.now()},{passive:true}));
+document.addEventListener('focusout',()=>{if(PEND)setTimeout(()=>{if(PEND&&!typing())applyRender()},250)});
+
 const pend={};
 const LIM=()=>API?15e6:7e5;
 function pv(id){const el=$('#pv-'+id);if(!el)return;const L=pend[id]||[];el.innerHTML=L.length?(L.every(f=>/^image\//.test(f.type))?'เลือกรูปแล้ว '+L.length+' หน้า → จะรวมเป็น PDF 1 ไฟล์':'ไฟล์ที่เลือก')+'<br>'+L.map((f,i)=>(i+1)+'. '+esc(f.name)+' <a href="#" data-a="rmimg" data-id="'+id+'" data-i="'+i+'">✕ ลบ</a>').join('<br>'):''}
-document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.a=='teamset'){setTeams({[t.dataset.n]:t.value});return}if(t.type=='radio'&&/^q-/.test(t.name||'')){const m=t.name.match(/^q-(.+)-(\d+)$/);if(m)(QA[m[1]]=QA[m[1]]||{})[m[2]]=+t.value;return}if(!t.id||t.id.slice(0,3)!='fl-')return;const id=t.id.slice(3);pend[id]=(pend[id]||[]).concat([...t.files]);t.value='';pv(id)});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.a=='vjump'){VW.i=+t.value;vwShow();return}if(t.dataset&&t.dataset.a=='teamset'){setTeams({[t.dataset.n]:t.value});return}if(t.type=='radio'&&/^q-/.test(t.name||'')){const m=t.name.match(/^q-(.+)-(\d+)$/);if(m)(QA[m[1]]=QA[m[1]]||{})[m[2]]=+t.value;return}if(!t.id||t.id.slice(0,3)!='fl-')return;const id=t.id.slice(3);pend[id]=(pend[id]||[]).concat([...t.files]);t.value='';pv(id)});
 const loadImg=f=>new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i)};i.onerror=()=>{URL.revokeObjectURL(u);no(new Error('img'))};i.src=u});
 async function imgsToPdf(L){const{jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',format:'a4',compress:true}),W=210,H=297,M=5;
  for(let k=0;k<L.length;k++){const im=await loadImg(L[k]),w0=im.naturalWidth,h0=im.naturalHeight,sc=Math.min(1,1800/Math.max(w0,h0)),c=document.createElement('canvas');c.width=Math.round(w0*sc);c.height=Math.round(h0*sc);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
@@ -331,7 +456,13 @@ function cardS(a){const s=sub(a.id,me.name),qz=quizOf(a),closed=!s&&a.mode=='har
  return`<div class="ai"><div class="row"><b>${esc(a.title)}</b><span>${prac?'<span class="chip c-ok">แบบฝึก</span>':chipA(a,s)+' '+(!s?dueChip(a):'')}</span></div><div class="mu">${prac?'ไม่นับคะแนน':'ส่ง '+fd(a.due)+(a.mode=='hard'?' · ปิดรับหลังกำหนด':'')+' · เต็ม '+a.max}</div>${a.desc?`<p style="white-space:pre-wrap">${link(a.desc)}</p>`:''}${a.furl?`<p><button class="btn s o" data-a="viewa" data-id="${a.id}">👁 ${esc(a.fname||'ไฟล์จากครู')}</button></p>`:''}${body}</div>`}
 function sView(c){const as=S.asgs.filter(a=>a.cls==c.id).sort((x,y)=>{const sx=sub(x.id,me.name)?1:0,sy=sub(y.id,me.name)?1:0;return sx-sy||(x.due||'9999').localeCompare(y.due||'9999')});
  return annBox(c)+(S.daily||[]).filter(d=>d.cls==c.id&&d.date===tdy()).map(dailyCard).join('')+teamBoard(c.id,false)+`<h3>งานในห้อง ${esc(c.name)}</h3>`+(as.map(cardS).join('')||'<p class="mu">ยังไม่มีงาน</p>')}
-function render(){$('#who').textContent=me?(me.role=='t'?'👩‍🏫 ':((S.me&&S.me.av)||'🎒')+' ')+me.name+(me.role=='t'&&S.me&&S.me.id?' · '+S.me.id:''):'';$('#outb').hidden=!me;$('#cpb').hidden=!(me&&API);
+let LK='',ET=0;const RM=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+function countUp(root){if(RM())return;root.querySelectorAll('.st b,.xpn').forEach(el=>{const t=el.textContent.trim(),m=t.match(/^(\d+(?:\.\d+)?)(%?)$/);if(!m||!+m[1])return;const to=+m[1],suf=m[2],dec=(m[1].split('.')[1]||'').length,t0=performance.now();(function f(n){const p=Math.min(1,(n-t0)/700),e=1-Math.pow(1-p,3);el.textContent=(to*e).toFixed(dec)+suf;if(p<1)requestAnimationFrame(f);else el.textContent=t})(t0)})}
+function enterFx(){const app=$('#app');if(!app)return;const k=[me&&me.name,v.c,v.t,v.a,loaded].join('|');if(k===LK)return;LK=k;
+ [...app.children].forEach((c,i)=>c.style.setProperty('--i',Math.min(i,6)));app.querySelectorAll('.ai,.bdg').forEach((c,i)=>c.style.setProperty('--j',Math.min(i,14)));
+ app.classList.remove('enter');void app.offsetWidth;app.classList.add('enter');clearTimeout(ET);ET=setTimeout(()=>app.classList.remove('enter'),1300);countUp(app)}
+function render(){render0();enterFx()}
+function render0(){$('#who').textContent=me?(me.role=='t'?'👩‍🏫 ':((S.me&&S.me.av)||'🎒')+' ')+me.name+(me.role=='t'&&S.me&&S.me.id?' · '+S.me.id:''):'';$('#outb').hidden=!me;$('#cpb').hidden=!(me&&API);
  if(!me){$('#app').innerHTML=apiP()+login();return}
  if(API&&!loaded){$('#app').innerHTML=skel();return}
  const c=S.classes.find(x=>x.id==v.c&&myC().includes(x));let body;
@@ -358,7 +489,9 @@ async function doDaily(id){const a=gv('da-'+id).trim();if(!a)return toast('พ�
  setBusy(1);try{const r=await post({op:'dcheck',id,a});if(!r.ok)return toast(r.error||'ส่งไม่สำเร็จ');await pull();render();if(r.correct){toast('🎉 ถูกต้อง! +15 XP');confetti()}else toast('ยังไม่ถูก ลองอีกครั้ง (เหลือ '+r.left+' ครั้ง)')}catch(e){diag(e)}finally{setBusy(0)}}
 async function doQstart(id){if(!API)return startTimer(id,(qoOf(S.asgs.find(x=>x.id==id)).t||1)*60000),render();
  setBusy(1);try{const r=await post({op:'qstart',asg:id});if(!r.ok)return toast(r.error||'เริ่มไม่ได้');startTimer(id,r.left);render();if(r.left<=0)doQuiz(id,true)}catch(e){diag(e)}finally{setBusy(0)}}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;if(b.tagName=='A'&&b.getAttribute('href')=='#')e.preventDefault();const a=b.dataset.a,d=b.dataset,val=i=>($('#'+i)||{}).value||'';
+const ASYNC=new Set(['submit','qsubmit','qstart','qchk','dsub','addstu','impx','fillpw','rst','teamrand','teamclr','joinc','savecp']);
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('.btn');if(!b||RM())return;const r=b.getBoundingClientRect(),s=Math.max(r.width,r.height)*2,p=document.createElement('span');p.className='rpl';p.style.cssText='width:'+s+'px;height:'+s+'px;left:'+(e.clientX-r.left-s/2)+'px;top:'+(e.clientY-r.top-s/2)+'px';b.appendChild(p);setTimeout(()=>p.remove(),600)},{passive:true});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;if(ASYNC.has(b.dataset.a)&&b.tagName=='BUTTON'){b.classList.add('busy');setTimeout(()=>b.classList.remove('busy'),9000)}if(b.tagName=='A'&&b.getAttribute('href')=='#')e.preventDefault();const a=b.dataset.a,d=b.dataset,val=i=>($('#'+i)||{}).value||'';
  if(a=='rmimg'){e.preventDefault();(pend[d.id]||[]).splice(+d.i,1);pv(d.id);return}
  if(a=='theme'){const r=document.documentElement,n=r.dataset.theme=='dark'?'light':'dark';r.dataset.theme=n;try{localStorage.setItem('cr_th',n)}catch(x){}return}
  if(a=='api'){v.api=!v.api;render();return}
@@ -419,11 +552,17 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
  if(a=='viewa'){const A=S.asgs.find(x=>x.id==d.id);if(A)vwOpen([{url:A.furl,name:A.fname,who:A.title}],0,null);return}
  if(a=='viewall'){const A=S.asgs.find(x=>x.id==v.a),L=S.members.filter(m=>m.cls==A.cls).map(m=>sub(A.id,m.name)).filter(x=>x&&x.furl).map(x=>({url:x.furl,name:x.fname,who:x.name,sid:x.id}));vwOpen(L,Math.max(0,L.findIndex(x=>!has(S.subs.find(y=>y.id==x.sid)))),A);return}
  if(a=='vprev'||a=='vnext'){VW.i=(VW.i+(a=='vnext'?1:-1)+VW.list.length)%VW.list.length;vwShow();return}
- if(a=='vclose'){const el=$('#vw');if(el)el.remove();VW=null;render();return}
+ if(a=='vclose'){vwClose();return}
+ if(a.slice(0,3)=='nt-'){ntAct(a,d);return}
+ if(a=='vstep'){const f=$('#vsc'),s=S.subs.find(x=>x.id==VW.list[VW.i].sid),A=S.asgs.find(x=>x.id==s.asg);let x=(+f.value||0)+(+d.d);x=Math.max(0,Math.min(+A.max,x));f.value=+x.toFixed(2);return}
+ if(a=='vquick'){const f=$('#vsc');if(f)f.value=d.v;return}
+ if(a=='vmic'){vwMic();return}
+ if(a=='viewr'){const s=S.subs.find(x=>x.id==d.sid),A=S.asgs.find(x=>x.id==(s||{}).asg);if(s&&s.rfurl)vwOpen([{url:s.rfurl,name:s.rfname||'ใบตรวจ.pdf',who:'ใบตรวจ: '+(A?A.title:'')}],0,null);return}
+ if(a=='vrfdel'){const s=S.subs.find(x=>x.id==d.id);if(s&&confirm('ลบใบตรวจนี้?')){put('subs',{...s,rfurl:'',rfname:''});vwShow()}return}
  if(a=='vq'){const f=$('#vfb');if(f)f.value=(f.value?f.value+' ':'')+d.t;return}
- if(a=='vsave'){const s=S.subs.find(x=>x.id==d.id),A=S.asgs.find(x=>x.id==(s||{}).asg),sc=gv('vsc');if(!s||!A)return;if(sc===''||+sc<0||+sc>+A.max)return toast('คะแนนต้องอยู่ระหว่าง 0-'+A.max);put('subs',{...s,score:+sc,fb:gv('vfb')});toast('บันทึกคะแนนแล้ว');if(VW.i<VW.list.length-1)VW.i++;vwShow();return}
+ if(a=='vsave'){vwSave();return}
  render()});
-function logout(){me=null;TOK='';loaded=false;try{['cr_me','cr_tok','cr_cache'].forEach(k=>{localStorage.removeItem(k);sessionStorage.removeItem(k)})}catch(x){}v={c:null,a:null,t:'work'};render()}
+function logout(){me=null;TOK='';loaded=false;clearTimeout(PT);try{['cr_me','cr_tok','cr_cache'].forEach(k=>{localStorage.removeItem(k);sessionStorage.removeItem(k)})}catch(x){}v={c:null,a:null,t:'work'};render()}
 async function joinApi(code){try{const r=await(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:TOK,op:'join',code:code.trim()})})).json();if(!r.ok)return toast(r.error=='auth'?'เซสชันหมดอายุ':r.error);await pull();v={c:r.cls,a:null,t:'work'};toast('เข้าร่วมห้องแล้ว');render()}catch(e){toast('เชื่อมต่อไม่ได้')}}
 async function doAuth(){const reg=lm=='up',g=i=>($('#'+i)||{}).value||'',n=g('un').trim(),pw=g('pw'),rem=$('#rm').checked;if(!n||!pw)return;toast('กำลังตรวจสอบ…');
  try{const r=await(await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({op:reg?'register':'login',name:n,password:pw,role:role=='t'?'teacher':'student',code:g('tc')})})).json();
@@ -432,6 +571,9 @@ async function doAuth(){const reg=lm=='up',g=i=>($('#'+i)||{}).value||'',n=g('un
   try{if(window.PasswordCredential)await navigator.credentials.store(new PasswordCredential({id:n,password:pw,name:n}))}catch(x){}
   {const nid=v.newId;v={c:null,a:null,t:'work',newId:nid}}loaded=false;render();await pull();render()}catch(e){diag(e);loaded=true;render()}}
 document.addEventListener('submit',e=>{if(e.target.id=='lf'){e.preventDefault();doAuth()}});
+const bz=f=>async(...a)=>{setBusy(1);try{return await f(...a)}finally{setBusy(0)}};
+['doSubmit','addList','rstPw','fillPw','joinApi','chPw','impX'].forEach(n=>{try{if(typeof eval(n)=='function')eval(n+'=bz('+n+')')}catch(e){}});
 load();if(readCache())loaded=true;pull().then(render);render();
 if('serviceWorker' in navigator&&location.protocol=='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.type=='updated'&&!$('#upd')){const u=document.createElement('div');u.id='upd';u.textContent='✨ มีเวอร์ชันใหม่ แตะเพื่อรีเฟรช';u.onclick=()=>location.reload();document.body.appendChild(u)}});
 </script></body></html>
